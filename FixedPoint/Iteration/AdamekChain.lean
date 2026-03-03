@@ -16,6 +16,7 @@
 import Mathlib.CategoryTheory.SmallObject.TransfiniteIteration
 import Mathlib.CategoryTheory.Endofunctor.Algebra
 import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+import FixedPoint.Iteration.AdamekConnection
 
 universe w v u
 
@@ -57,6 +58,8 @@ noncomputable def adamekBaseIso :
     (adamekIterationFunctor ε J).obj ⊥ ≅ 𝟭 C :=
   (adamekSuccStruct ε).iterationFunctorObjBotIso J
 
+variable [HasInitial C] [HasColimit (initialChain F)] [PreservesColimit (initialChain F) F]
+
 /-- Key theorem (Adamek): when F preserves the colimits in the chain,
     the colimit carries an initial F-algebra structure.
 
@@ -64,7 +67,7 @@ noncomputable def adamekBaseIso :
     required colimits exist), and ihom(A) preserves filtered colimits
     (as a right adjoint that is accessible). -/
 theorem adamekColimit_isInitialAlgebra (X : C) :
-    ∃ (A : Algebra F), Nonempty (Limits.IsInitial A) := by
-  sorry
+    ∃ (A : Algebra F), Nonempty (Limits.IsInitial A) :=
+  ⟨adamekFromInitial F, ⟨adamekFromInitial_isInitial F⟩⟩
 
 end FixedPoint.Iteration

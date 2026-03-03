@@ -11,6 +11,12 @@ import FixedPoint.Uniqueness.RightAdjointUnique
 import FixedPoint.Iteration.AdamekChain
 import FixedPoint.Iteration.FinSetDivergence
 
+-- Adamek's Initial Algebra Theorem (ℕ-indexed)
+import FixedPoint.Iteration.InitialChain
+import FixedPoint.Iteration.ChainShift
+import FixedPoint.Iteration.AdamekTheorem
+import FixedPoint.Iteration.AdamekConnection
+
 -- Theory definitions
 import FixedPoint.Theories.EssentiallyAlgebraic
 
