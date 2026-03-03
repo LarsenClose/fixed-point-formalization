@@ -1,0 +1,9 @@
+/.lake
+/build
+*.olean
+*.ilean
+*.trace
+__pycache__/
+*.pyc
+.envrc
+.env
