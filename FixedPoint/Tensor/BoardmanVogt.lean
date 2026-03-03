@@ -1,5 +1,10 @@
 /-
-  BoardmanVogt.lean
+  BoardmanVogt.lean — ISOLATED MODULE (Tier 3 conjectures)
+
+  This file is quarantined from the verified core. Claims A and A' contain
+  `sorry` and must not be depended upon by any Tier 1/2 theorem. No other
+  module in the project imports this file (it appears only in the root
+  FixedPoint.lean import list for documentation completeness).
 
   Scaffolds Claims A and A' from the paper series as formal conjectures.
 

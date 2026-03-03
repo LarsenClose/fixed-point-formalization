@@ -41,6 +41,19 @@
   hypothesis. When Mathlib gains (1), this hypothesis can be removed and
   derived from `SubstrateCategory` automatically.
 
+  NOTE ON HYPOTHESIS STRENGTH: `PreservesColimit K F` (singular, for a specific
+  diagram K) is strictly narrower than any of:
+    - `PreservesColimits F` (all colimits of all shapes)
+    - `PreservesColimitsOfShape ℕ F` (all ℕ-indexed diagrams)
+    - `PreservesFilteredColimits F` (all filtered colimits)
+  Our hypothesis asks only that ihom(A) preserve the colimit of one specific
+  omega-chain (the initial chain). This is the minimal requirement of the
+  Adamek theorem and introduces no logical inconsistencies — it does not assert
+  that ihom(A) preserves colimits it cannot preserve (e.g. non-filtered ones).
+  The eventual derivation from AR 2.23 will discharge this specific instance
+  by establishing the stronger `PreservesFilteredColimits` property, but we
+  do not assume that stronger property here.
+
   What IS available from SubstrateCategory:
     - `HasColimit (initialChain (ihom A))` — follows from cocompleteness
       (IsLocallyPresentable => HasColimitsOfSize => HasColimitsOfShape Nat)

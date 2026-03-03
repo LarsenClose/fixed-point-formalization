@@ -67,16 +67,12 @@ structure EATheory where
 def EATheory.isAlgebraic (T : EATheory) : Prop :=
   ∀ op ∈ T.operations, op.isTotal = true
 
-/-- Gabriel-Ulmer duality (statement only): the category of models of an EAT
-    in Set is locally finitely presentable, and conversely every locally
-    finitely presentable category arises this way.
-
-    This is the bridge between the syntactic (EAT) and semantic
-    (locally presentable category) perspectives. -/
-axiom gabrielUlmerDuality :
-  True -- Full formalization requires defining Mod(T, Set) as a category
-       -- and proving it is locally finitely presentable.
-       -- Deferred: this is a deep theorem connecting EAT to the
-       -- typeclass conditions in Specification/SubstrateIndependent.lean.
+-- Gabriel-Ulmer duality: not axiomatized; the project uses the semantic
+-- SubstrateCategory framework instead. See docs/alternative-approaches-ct.md.
+--
+-- The duality (models of an EAT in Set are locally finitely presentable,
+-- and conversely) bridges the syntactic and semantic perspectives but is
+-- not needed as a Lean axiom because SubstrateIndependent.lean encodes the
+-- required categorical properties directly via typeclasses.
 
 end FixedPoint.Theories
