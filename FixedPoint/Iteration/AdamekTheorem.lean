@@ -78,8 +78,6 @@ end AlgebraDefinition
 
 section AlgebraCoconeApp
 
-variable (F : C ⥤ C) [HasInitial C]
-
 /-- The n-th leg of the algebra cocone: the unique map F^n(⊥) → B.a. -/
 noncomputable def algebraCoconeApp (B : Endofunctor.Algebra F) :
     (n : ℕ) → iterateObj F n ⟶ B.a
@@ -103,7 +101,7 @@ theorem iterateMap_comp_algebraCoconeApp (B : Endofunctor.Algebra F) (k : ℕ) :
   | zero => exact initial.hom_ext _ _
   | succ k ih =>
     -- Goal: F.map(iterateMap k) ≫ (F.map(f_{k+1}) ≫ B.str) = F.map(f_k) ≫ B.str
-    show F.map (iterateMap F k) ≫ (F.map (algebraCoconeApp F B (k + 1)) ≫ B.str) =
+    change F.map (iterateMap F k) ≫ (F.map (algebraCoconeApp F B (k + 1)) ≫ B.str) =
       F.map (algebraCoconeApp F B k) ≫ B.str
     rw [← Category.assoc, ← F.map_comp, ih]
 
@@ -140,6 +138,7 @@ noncomputable def algebraCocone (B : Endofunctor.Algebra F) :
           iterateMap_comp_algebraCoconeApp F B k,
           ih (homOfLE hle')] }
 
+omit [PreservesColimit (initialChain F) F] in
 theorem algebraCocone_app (B : Endofunctor.Algebra F) (n : ℕ) :
     (algebraCocone F B).ι.app n = algebraCoconeApp F B n := rfl
 

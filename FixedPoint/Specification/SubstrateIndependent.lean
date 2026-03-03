@@ -129,7 +129,7 @@ noncomputable def FixedPointSpec.fixedPointIso {A : C} [Closed A]
     See the MATHLIB GAP note at the top of this file. -/
 theorem fixedPoint_exists (A : C) [Closed A]
     [PreservesColimit (initialChain (ihom A)) (ihom A)] :
-    ∃ fp : FixedPointSpec A, True :=
+    ∃ _ : FixedPointSpec A, True :=
   ⟨{ algebra := adamekFromInitial (ihom A)
      isInitial := adamekFromInitial_isInitial (ihom A) }, trivial⟩
 

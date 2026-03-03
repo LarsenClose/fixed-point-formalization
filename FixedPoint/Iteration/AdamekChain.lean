@@ -66,7 +66,7 @@ variable [HasInitial C] [HasColimit (initialChain F)] [PreservesColimit (initial
     For the paper series: F = ihom(A), C is locally presentable (so the
     required colimits exist), and ihom(A) preserves filtered colimits
     (as a right adjoint that is accessible). -/
-theorem adamekColimit_isInitialAlgebra (X : C) :
+theorem adamekColimit_isInitialAlgebra :
     ∃ (A : Algebra F), Nonempty (Limits.IsInitial A) :=
   ⟨adamekFromInitial F, ⟨adamekFromInitial_isInitial F⟩⟩
 
