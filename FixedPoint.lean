@@ -28,6 +28,7 @@ import FixedPoint.Accessibility.RightAdjointAccessible
 
 -- Church-Turing characterization and Rogers isomorphism
 import FixedPoint.ChurchTuring.CharacterizationTheorem
+import FixedPoint.ChurchTuring.Myhill
 import FixedPoint.ChurchTuring.RogersIsomorphism
 
 -- Reflexive object and self-application (Target 3)

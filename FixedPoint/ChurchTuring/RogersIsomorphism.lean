@@ -70,6 +70,7 @@
   - Cutland, N. (1980). Computability, Ch. 7.
 -/
 import FixedPoint.ChurchTuring.CharacterizationTheorem
+import FixedPoint.ChurchTuring.Myhill
 import Mathlib.Computability.Reduce
 import Mathlib.Data.Set.Finite.Basic
 import Mathlib.SetTheory.Cardinal.SchroederBernstein
@@ -472,9 +473,10 @@ end InjTranslation
 -- The full Rogers isomorphism theorem
 -- ────────────────────────────────────────────────────────────────
 
-/-- **Effective Myhill Isomorphism Lemma**: given computable injections
-    `f : α → β` and `g : β → α` between `Denumerable` types that each
-    preserve a pointwise relation `R`, there exists a computable bijection
+/-- **Effective Myhill Isomorphism Lemma**: given computable padding
+    functions `pad_f : α → ℕ → β` and `pad_g : β → ℕ → α` between
+    `Denumerable` types that preserve a pointwise relation `R` and are
+    injective in the index parameter, there exists a computable bijection
     `h : α ≃ β` that also preserves `R`.
 
     This is the effective version of the Cantor-Bernstein theorem for
@@ -485,50 +487,34 @@ end InjTranslation
 
     The construction: enumerate elements of `α` and `β` as `a₀, a₁, ...`
     and `b₀, b₁, ...`. Build a partial bijection stage by stage:
-    - Stage 2k: if `aₖ` is unassigned, set `h(aₖ)` to a "padded variant"
-      of `f(aₖ)` that avoids all previously assigned values.
-    - Stage 2k+1: if `bₖ` is unassigned in the range, set `h⁻¹(bₖ)` to
-      a padded variant of `g(bₖ)` avoiding the domain so far.
+    - Stage 2k: if `aₖ` is unassigned, set `h(aₖ)` to `pad_f aₖ j`
+      where `j` is least such that `pad_f aₖ j` avoids all previously
+      assigned values.
+    - Stage 2k+1: if `bₖ` is unassigned in the range, set `h⁻¹(bₖ)`
+      to `pad_g bₖ j` for the least fresh `j`.
 
-    The padding lemma ensures fresh variants always exist (infinitely many
-    programs compute each function). Computability follows because:
+    The padding injectivity ensures fresh variants always exist (each
+    `pad_f a` maps ℕ injectively, so its range is infinite and cannot
+    be contained in any finite set). Computability follows because:
     - The state (partial bijection) at stage `n` is computable from `n`
       by primitive recursion on encoded lists
-    - Each step involves computable operations (translate, pad, lookup)
+    - Each step involves computable operations (pad, lookup, search)
     - The final function is obtained by running the BFF to the relevant
       stage, which is a bounded computation
 
-    Since formalizing the full BFF construction in Lean 4 requires
-    substantial Primrec/Partrec infrastructure for list-encoded state
-    machines (~250 lines of technical `Primrec` composition), we isolate
-    this as a standalone lemma. The mathematical argument is standard
-    (Rogers 1967 §2.6, Soare 1987 §I.5, Cutland 1980 Ch. 7).
+    The proof is in `FixedPoint.ChurchTuring.Myhill`.
 
-    ## Axiom justification
-
-    This is stated as an axiom rather than proved because the full
-    formalization requires encoding the BFF state machine (a list of
-    (ℕ × ℕ) pairs representing the partial bijection) and showing
-    all operations — lookup, membership test, padding search via
-    bounded minimization — are `Primrec`/`Computable`. This amounts
-    to ~250 lines of technical `Primrec` composition that we defer.
-
-    The classical Schröder-Bernstein construction (`schroeder_bernstein_of_rel`)
-    cannot be used here because it produces a function defined via
-    `Set.piecewise` on a least-fixed-point set with `invFun`, which
-    is inherently noncomputable. The computable version requires the
-    BFF (back-and-forth) construction, which is a different function.
-
-    This is the ONLY axiom in the project beyond Lean's foundations.
-    The mathematical content is standard and well-established. -/
-axiom effective_myhill {α β : Type*} [Denumerable α] [Denumerable β]
-    {f : α → β} {g : β → α}
-    (hf_comp : Computable f) (hg_comp : Computable g)
-    (hf_inj : Function.Injective f) (hg_inj : Function.Injective g)
-    {R : α → β → Prop} (hR_f : ∀ a, R a (f a)) (hR_g : ∀ b, R (g b) b)
-    (pad_f : ∀ (a : α) (S : Finset β), ∃ b : β, R a b ∧ b ∉ S)
-    (pad_g : ∀ (b : β) (S : Finset α), ∃ a : α, R a b ∧ a ∉ S) :
-    ∃ e : α ≃ β, e.Computable ∧ ∀ a, R a (e a)
+    References: Rogers 1967 §2.6, Soare 1987 §I.5, Cutland 1980 Ch. 7. -/
+theorem effective_myhill {α β : Type*} [Denumerable α] [Denumerable β]
+    {R : α → β → Prop}
+    {pad_f : α → ℕ → β} (pad_f_comp : Computable₂ pad_f)
+    (pad_f_R : ∀ a k, R a (pad_f a k))
+    (pad_f_inj : ∀ a, Function.Injective (pad_f a))
+    {pad_g : β → ℕ → α} (pad_g_comp : Computable₂ pad_g)
+    (pad_g_R : ∀ b k, R (pad_g b k) b)
+    (pad_g_inj : ∀ b, Function.Injective (pad_g b)) :
+    ∃ e : α ≃ β, e.Computable ∧ ∀ a, R a (e a) :=
+  Myhill.effective_myhill_general pad_f_comp pad_f_R pad_f_inj pad_g_comp pad_g_R pad_g_inj
 
 /-- **Rogers' Isomorphism Theorem**: any two acceptable numberings of
     the partial recursive functions are computably isomorphic.
@@ -539,40 +525,44 @@ axiom effective_myhill {α β : Type*} [Denumerable α] [Denumerable β]
     computable bijection.
 
     The proof applies `effective_myhill` with:
-    - `f = injTranslate m₁ m₂` (computable, injective, eval-preserving)
-    - `g = injTranslate m₂ m₁` (computable, injective, eval-preserving)
-    - `R p q = ∀ n, m₁.eval p n = m₂.eval q n` (eval preservation)
-    - Padding provided by `pad_avoids_finset` + `pad_eval`
-
-    The bijection existence and eval-preservation are fully proved.
-    Computability depends on `effective_myhill`, which encapsulates the
-    back-and-forth construction (Rogers 1967, §2.6, Theorem 2-VI). -/
+    - `pad_f p k = m₂.pad (m₁.compTranslate m₂ p) k` (computable,
+      eval-preserving, injective in k)
+    - `pad_g q k = m₁.pad (m₂.compTranslate m₁ q) k` (symmetric)
+    - `R p q = ∀ n, m₁.eval p n = m₂.eval q n` (eval preservation) -/
 noncomputable def rogers_isomorphism (m₁ m₂ : CompModel) :
     ComputableIso m₁ m₂ := by
   -- The evaluation-preservation relation
   set R := fun (p : m₁.Prog) (q : m₂.Prog) => ∀ n, m₁.eval p n = m₂.eval q n
-  -- Apply the effective Myhill isomorphism lemma
+  -- Computability of the padding composition:
+  -- pad_f p k = smn_fun projProg (pair (encode (compTranslate p)) k)
+  have pad_f_comp : Computable₂ (fun (p : m₁.Prog) (k : ℕ) =>
+      m₂.pad (m₁.compTranslate m₂ p) k) := by
+    unfold CompModel.pad
+    exact m₂.smn_fun_computable.comp
+      (Computable.const m₂.projProg)
+      (Primrec₂.natPair.to_comp.comp
+        ((Computable.encode.comp (m₁.compTranslate_computable m₂)).comp Computable.fst)
+        Computable.snd)
+  have pad_g_comp : Computable₂ (fun (q : m₂.Prog) (k : ℕ) =>
+      m₁.pad (m₂.compTranslate m₁ q) k) := by
+    unfold CompModel.pad
+    exact m₁.smn_fun_computable.comp
+      (Computable.const m₁.projProg)
+      (Primrec₂.natPair.to_comp.comp
+        ((Computable.encode.comp (m₂.compTranslate_computable m₁)).comp Computable.fst)
+        Computable.snd)
+  -- Apply the effective Myhill isomorphism lemma with explicit padding
   have hmyhill := @effective_myhill m₁.Prog m₂.Prog _ _
-    (hf_comp := m₁.injTranslate_computable m₂)
-    (hg_comp := m₂.injTranslate_computable m₁)
-    (hf_inj := m₁.injTranslate_injective m₂)
-    (hg_inj := m₂.injTranslate_injective m₁)
     (R := R)
-    (hR_f := fun p n => m₁.injTranslate_ext m₂ p n)
-    (hR_g := fun q n => (m₂.injTranslate_ext m₁ q n).symm)
-    (pad_f := fun p S => by
-      -- For any program p and finite set S of m₂-programs, find a
-      -- program q ∉ S computing the same function as p.
-      -- Use: pad m₂ (compTranslate m₁ m₂ p) k for a fresh k.
-      obtain ⟨k, hk⟩ := m₂.pad_avoids_finset (m₁.compTranslate m₂ p) S
-      exact ⟨m₂.pad (m₁.compTranslate m₂ p) k, fun n => by
-        rw [m₂.pad_eval]; exact m₁.compTranslate_ext m₂ p n, hk⟩)
-    (pad_g := fun q S => by
-      obtain ⟨k, hk⟩ := m₁.pad_avoids_finset (m₂.compTranslate m₁ q) S
-      exact ⟨m₁.pad (m₂.compTranslate m₁ q) k, fun n => by
-        rw [m₁.pad_eval]; exact (m₂.compTranslate_ext m₁ q n).symm, hk⟩)
-  -- Extract the equiv and its properties via Classical.choice
-  -- (hmyhill is in Prop but ComputableIso is in Type, so we use choose)
+    (pad_f := fun p k => m₂.pad (m₁.compTranslate m₂ p) k)
+    (pad_f_comp := pad_f_comp)
+    (pad_f_R := fun p k n => by rw [m₂.pad_eval]; exact m₁.compTranslate_ext m₂ p n)
+    (pad_f_inj := fun p => m₂.pad_injective (m₁.compTranslate m₂ p))
+    (pad_g := fun q k => m₁.pad (m₂.compTranslate m₁ q) k)
+    (pad_g_comp := pad_g_comp)
+    (pad_g_R := fun q k n => by rw [m₁.pad_eval]; exact (m₂.compTranslate_ext m₁ q n).symm)
+    (pad_g_inj := fun q => m₁.pad_injective (m₂.compTranslate m₁ q))
+  -- Extract the equiv and its properties
   let equiv := hmyhill.choose
   have hcomp := hmyhill.choose_spec.1
   have hR' := hmyhill.choose_spec.2
@@ -583,7 +573,6 @@ noncomputable def rogers_isomorphism (m₁ m₂ : CompModel) :
     forward_ext := fun p n => hR' p n
     backward_ext := fun q n => by
       have h := hR' (equiv.symm q) n
-      -- h : m₁.eval (equiv.symm q) n = m₂.eval (equiv (equiv.symm q)) n
       rw [Equiv.apply_symm_apply] at h
       exact h.symm
   }

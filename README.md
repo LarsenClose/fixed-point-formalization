@@ -7,7 +7,7 @@ Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory and categorical
 dimension.
 
-**27 files, 4730 lines of Lean. 3 sorry (all isolated conjectures). 1 standard axiom.**
+**28 files, 5897 lines of Lean. 3 sorry (all isolated conjectures). 0 custom axioms.**
 
 ## Main results
 
@@ -70,15 +70,18 @@ The Adamek chain is an N-indexed filtration by dimension:
 - **Convergence criterion**: forward (FixedPointSpec implies omega + fixed-point
   equation) and converse (no initial algebra implies no pipeline)
 
-### Computability theory (no sorry, one standard axiom)
+### Computability theory (no sorry, no custom axioms)
 
 - **Characterization theorem**: any two acceptable numberings compute the same
   class of partial recursive functions
 - **Weak Rogers isomorphism**: computable translations in both directions
 - **Kleene's recursion theorem**: every computable transformation of programs
   has a semantic fixed point
+- **Effective Myhill Isomorphism Theorem**: computable injections in both
+  directions plus computable padding yield a computable bijection. Full
+  back-and-forth construction with computability proved via `Primrec` composition.
 - **Strong Rogers isomorphism**: a computable bijection between any two
-  CompModels, via the Myhill Isomorphism Theorem (taken as axiom, see below)
+  CompModels, proved using the Effective Myhill theorem
 
 ## What is not proved
 
@@ -88,14 +91,6 @@ theories, and that the Lawvere-Linton correspondence extends similarly. These
 are novel mathematical claims that have not been proved anywhere. No other file
 depends on them. `MonoidalUniqueness.lean` has one sorry depending on the same
 BV gap.
-
-## The one axiom
-
-`effective_myhill` (Myhill's Isomorphism Theorem, 1955): computable injections
-in both directions plus padding yield a computable bijection. This is a
-standard textbook result (Rogers 1967, Soare 1987, Cutland 1980). It is taken
-as an axiom because proving it in Lean requires ~250 lines of `Primrec`
-composition. Only `rogers_isomorphism` depends on it.
 
 ## Structure
 
@@ -108,7 +103,7 @@ is not, and why.
 | `Specification/` | Substrate-independent fixed-point existence and uniqueness |
 | `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness framework |
 | `Accessibility/` | AR Theorem 2.23 |
-| `ChurchTuring/` | CompModel, characterization, Rogers isomorphism |
+| `ChurchTuring/` | CompModel, characterization, Myhill theorem, Rogers isomorphism |
 | `Reflexive/` | Reflexive object, Y combinator, Kleene bridge and derivation (5 files) |
 | `Dimension/` | Truncation levels, graded filtration, dissolution, divergence (7 files) |
 | `Theories/` | Essentially algebraic theory definitions |

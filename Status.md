@@ -150,7 +150,38 @@ instance, and the characterization theorem. All compile with no sorry.
 
 File: `CharacterizationTheorem.lean`.
 
-### Weak Rogers isomorphism, Kleene's recursion theorem, and the strong Rogers isomorphism (1 file, ~724 lines)
+### The Effective Myhill Isomorphism Theorem (1 file, ~1178 lines)
+
+**What it says:** Given two Denumerable types with computable injections in both
+directions and computable padding functions (indexed, injective in the index,
+and R-preserving), there exists a computable bijection that preserves the
+relation R.
+
+This is the computable analogue of the Cantor-Bernstein theorem. The classical
+proof (Myhill 1955) uses a back-and-forth construction: process elements
+0, 1, 2, ... in order, alternately extending the forward and backward maps,
+using padding to find fresh targets when needed.
+
+**What we proved in Lean:**
+
+- The full back-and-forth (BFF) construction: `bffState`, `bffStep`, `bffFwd`,
+  `bffBwd` — a state machine that builds a partial bijection one element at a
+  time using association lists.
+- Totality: every element eventually appears in the domain/range (`bffFwd_total`,
+  `bffBwd_total`).
+- Bijectivity: `bffBwd_bffFwd` and `bffFwd_bffBwd` — the constructed functions
+  are mutual inverses.
+- R-preservation: the bijection preserves the relation at every point.
+- Computability: every component (`inDomain`, `inRange`, `lookupFwd`,
+  `lookupBwd`, `findFreshFwd`, `findFreshBwd`, `bffStep`, `bffState`,
+  `bffFwd`, `bffBwd`) is proved `Computable` or `Computable₂` via `Primrec`
+  composition.
+- Assembly: `effective_myhill_nat` for ℕ, `effective_myhill_general` lifted to
+  arbitrary `Denumerable` types via `Denumerable.equiv`.
+
+File: `Myhill.lean`.
+
+### Weak Rogers isomorphism, Kleene's recursion theorem, and the strong Rogers isomorphism (1 file, ~713 lines)
 
 **What it says:**
 
@@ -170,7 +201,7 @@ computable transformation of programs has a semantic fixed point.
 a computable *bijection* that preserves evaluation. The proof builds on
 `injTranslate` -- a computable, injective, evaluation-preserving translation
 constructed from s-m-n + padding -- and applies the Effective Myhill
-Isomorphism Lemma to obtain the bijection.
+Isomorphism Theorem (proved in `Myhill.lean`) to obtain the bijection.
 
 **What we proved in Lean:**
 
@@ -183,7 +214,8 @@ Isomorphism Lemma to obtain the bijection.
   Mathlib's `Code.fixed_point` -- the proof is internal to the abstract model).
 - `ComputableIso` shown to be an equivalence relation (reflexive, symmetric,
   transitive).
-- The strong Rogers isomorphism via `effective_myhill`.
+- The strong Rogers isomorphism via `effective_myhill` (now a proved theorem,
+  no longer an axiom).
 
 File: `RogersIsomorphism.lean`.
 
@@ -236,63 +268,6 @@ kappa and kappa' equal aleph_0. See the substrate-independent specification
 above.
 
 File: `RightAdjointAccessible.lean`.
-
----
-
-## One axiom: the Myhill Isomorphism Theorem (`effective_myhill`)
-
-**Where:** `RogersIsomorphism.lean`, line 524.
-
-**What it says in plain language:**
-
-Suppose you have two countable collections (like two different programming
-languages) and computable one-to-one maps going each direction (a compiler
-from language A to language B, and one from B to A). These compilers are
-injective — different source programs produce different target programs — and
-they preserve behavior (a compiled program computes the same function as the
-original). Suppose also that each language has "padding": for any program and
-any finite blacklist, you can always find another program that computes the
-same function but isn't on the blacklist. (This is true for real programming
-languages — you can always add a no-op to get a syntactically different but
-semantically identical program.)
-
-Then there exists a computable *bijection* between the two languages that
-preserves behavior. Not just translations that might map multiple programs to
-the same target, but a perfect one-to-one pairing.
-
-**Is this mathematically controversial?** No. This is Myhill's Isomorphism
-Theorem (1955). It appears in every recursion theory textbook: Rogers 1967
-section 2.6, Soare 1987 section I.5, Cutland 1980 Ch. 7. The proof is a
-standard "back-and-forth" construction: process elements 0, 1, 2, ... in
-order, alternately extending the forward and backward maps, using padding to
-find fresh targets when needed.
-
-**Why is it an axiom instead of a proved theorem?** The mathematical proof is
-clear, but translating it into Lean requires a specific kind of tedious work:
-showing that a state machine built from list operations (looking up a key in a
-list of pairs, checking if a value appears in a list, searching through
-0, 1, 2, ... until you find one not in a list) composes into a single
-primitive recursive function in Lean's `Primrec` type. This is ~250 lines of
-mechanical API plumbing — composing `Primrec.list_find?`, `Primrec.list_mem`,
-`Primrec.nat_rec`, etc. — with no mathematical content. It is engineering work
-that we have not done.
-
-**Why not use the existing Schroeder-Bernstein theorem from Mathlib?** Mathlib
-has `Function.Embedding.schroeder_bernstein`, which proves that injections in
-both directions give a bijection. But the bijection it constructs is defined
-using `Set.piecewise` on a least-fixed-point set (computed by iterating a
-set-theoretic operator) and `Function.invFun` (which picks preimages using
-`Classical.choose`). This function is *genuinely not computable* — it relies
-on deciding membership in a set that has no decidable characterization, and on
-choosing preimages nonconstructively. The Myhill theorem requires building a
-*different* function via the back-and-forth construction, which IS computable
-but is not the same function as the Schroeder-Bernstein bijection.
-
-**What depends on it:** Only `rogers_isomorphism` (the strong Rogers
-isomorphism theorem). Everything else in the project — the characterization
-theorem, weak Rogers isomorphism, Kleene's recursion theorem, Adamek's initial
-algebra theorem, AR 2.23, the substrate-independent fixed point — is fully
-proved with no custom axioms.
 
 ---
 
@@ -352,18 +327,15 @@ filtered colimits including omega-chains. Adamek's theorem then gives the
 initial algebra, and Lambek's lemma gives the fixed-point isomorphism.
 Uniqueness follows from initiality.
 
-### Computability side (fully proved except one standard axiom)
+### Computability side (fully proved, no sorry, no custom axioms)
 
 The characterization theorem (any two acceptable numberings compute the same
 class of functions), the weak Rogers isomorphism (computable translations in
-both directions), and Kleene's recursion theorem for abstract models are all
-fully proved with no axioms.
-
-The strong Rogers isomorphism (a computable *bijection* between any two
-acceptable numberings) is proved modulo the Myhill Isomorphism Theorem, which
-is taken as an axiom. The axiom is a standard, well-established result from
-1955. Proving it in Lean requires ~250 lines of primitive recursive function
-composition that we have not written.
+both directions), Kleene's recursion theorem for abstract models, the
+Effective Myhill Isomorphism Theorem (full back-and-forth construction with
+computability proved via `Primrec` composition), and the strong Rogers
+isomorphism (a computable bijection between any two acceptable numberings)
+are all fully proved with no custom axioms.
 
 ### Theory layer (conjectural, not formalized)
 
@@ -617,7 +589,8 @@ in Mathlib.
 | `Uniqueness/MonoidalUniqueness.lean` | 204 | 1 | 0 | Factored uniqueness (Tier 3 gap in step b) |
 | `Accessibility/RightAdjointAccessible.lean` | 416 | 0 | 0 | AR 2.23: right adjoints are accessible |
 | `ChurchTuring/CharacterizationTheorem.lean` | 241 | 0 | 0 | CompModel structure, characterization theorem |
-| `ChurchTuring/RogersIsomorphism.lean` | 724 | 0 | 1 | Rogers isomorphism (uses Myhill axiom) |
+| `ChurchTuring/Myhill.lean` | 1178 | 0 | 0 | Effective Myhill Isomorphism Theorem (BFF construction) |
+| `ChurchTuring/RogersIsomorphism.lean` | 713 | 0 | 0 | Rogers isomorphism (weak + strong) |
 | `Theories/EssentiallyAlgebraic.lean` | 78 | 0 | 0 | EAT data definitions |
 | `Tensor/BoardmanVogt.lean` | 85 | 2 | 0 | Unpublished conjectures (placeholders) |
 | `Reflexive/ReflexiveObject.lean` | 154 | 0 | 0 | Reflexive object, selfApp, curry/uncurry |
@@ -634,15 +607,14 @@ in Mathlib.
 | `Reflexive/KleeneDerivation.lean` | 217 | 0 | 0 | Layer 3: N-bridge, Kleene derivation |
 | `Dimension/DimensionalDissolution.lean` | 183 | 0 | 0 | Yoneda M-compatibility, dissolution |
 
-**Total: 4730 lines of Lean across 27 files.**
+**Total: 5897 lines of Lean across 28 files.**
 
 - **3 sorry**: 2 in `BoardmanVogt.lean` (unpublished conjectures, Tier 3), 1 in
   `MonoidalUniqueness.lean` (Tier 3, depends on BV tensor extension). No other
   file depends on any sorry.
-- **1 axiom** (`effective_myhill`): Myhill's Isomorphism Theorem (1955), a
-  standard textbook result. Taken as axiom because the Lean proof requires ~250
-  lines of `Primrec` composition we haven't written. Only `rogers_isomorphism`
-  depends on it.
+- **0 custom axioms**: All theorems, including the Effective Myhill Isomorphism
+  Theorem and the strong Rogers isomorphism, are fully proved. The only axioms
+  used are Lean's standard three: `propext`, `Classical.choice`, `Quot.sound`.
 
 Run `./scripts/verify.sh` to reproduce these numbers.
 
