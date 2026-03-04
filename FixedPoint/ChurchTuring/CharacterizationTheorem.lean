@@ -81,14 +81,18 @@ structure CompModel where
       This is the s-m-n theorem internalized in the model.
 
       The s-m-n function `s` is required to be `Computable₂` (computable
-      as a function of both arguments), matching the standard requirement
-      in recursion theory that the s-m-n function is computable (in fact,
-      primitive recursive). This computability is essential for deriving
-      the recursion theorem (Kleene's fixed-point theorem) from the
-      CompModel axioms. -/
+      as a function of both arguments) and injective in the second argument
+      (for each fixed `p`), matching the standard requirement in recursion
+      theory that the s-m-n function is a one-one primitive recursive
+      function (Rogers 1967, §1.7; Soare 1987, §I.4). Computability is
+      essential for deriving the recursion theorem (Kleene's fixed-point
+      theorem), and injectivity is essential for the padding lemma, which
+      is in turn needed for Rogers' isomorphism theorem. -/
   smn :
     ∃ s : Prog → ℕ → Prog,
-      Computable₂ s ∧ ∀ p n x, eval (s p n) x = eval p (Nat.pair n x)
+      Computable₂ s ∧
+      (∀ p, Function.Injective (s p)) ∧
+      ∀ p n x, eval (s p n) x = eval p (Nat.pair n x)
 
 attribute [instance] CompModel.denumerable
 
@@ -105,7 +109,13 @@ def codeModel : CompModel where
   eval_partrec :=
     (Code.eval_part.comp ((Computable.ofNat Code).comp Computable.fst)
       Computable.snd).to₂
-  smn := ⟨Code.curry, Code.primrec₂_curry.to_comp, Code.eval_curry⟩
+  smn := ⟨Code.curry, Code.primrec₂_curry.to_comp, fun c n₁ n₂ h => by
+      unfold Code.curry at h
+      have h1 := Code.pair.inj (Code.comp.inj h).2
+      have h2 : Code.const n₁ = Code.const n₂ := h1.1
+      have h3 : (Code.const n₁).eval 0 = (Code.const n₂).eval 0 := by rw [h2]
+      rw [Code.eval_const, Code.eval_const] at h3; exact Part.some_injective h3,
+    Code.eval_curry⟩
 
 -- ────────────────────────────────────────────────────────────────
 -- Backward-compatible standalone predicates
