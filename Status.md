@@ -412,7 +412,4 @@ Run `./scripts/verify.sh` to reproduce these numbers.
 |------|---------|
 | `README.md` | Project overview |
 | `Status.md` | This document |
-| `MATHLIB_PR_PLAN.md` | Plan for upstreaming Adamek theorem to Mathlib |
-| `docs/lean-mcp-tools.md` | MCP tool reference for Lean development |
-| `docs/archive/` | Historical planning docs (Gap 1/2 approaches, AR 2.23 plan) |
 | `scripts/verify.sh` | Build + sorry audit + axiom inventory |
