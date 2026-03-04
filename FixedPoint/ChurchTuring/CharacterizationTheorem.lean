@@ -65,12 +65,30 @@ structure CompModel where
       (universality / surjectivity). -/
   universal :
     ∀ c : Code, ∃ p : Prog, ∀ n, eval p n = Code.eval c n
-  /-- Internal currying: there is a function that, given a program `p`
+  /-- The evaluation function, viewed as a function ℕ → ℕ →. ℕ via
+      the Denumerable encoding of `Prog`, is partial recursive. This
+      is the uniform computability requirement for an acceptable
+      numbering: not only does each individual program compute a
+      partial recursive function (which `representable` ensures), but
+      the map `(i, n) ↦ eval (ofNat Prog i) n` is itself partial
+      recursive as a function of both the program index and the input.
+      This corresponds to the existence of a universal function in
+      Rogers' sense (Definition 2-10). -/
+  eval_partrec :
+    Partrec₂ (fun (i : ℕ) (n : ℕ) => eval (Denumerable.ofNat Prog i) n)
+  /-- Internal currying: a computable function that, given a program `p`
       and an input `n`, produces a program computing `x ↦ eval p ⟨n, x⟩`.
-      This is the s-m-n theorem internalized in the model. -/
+      This is the s-m-n theorem internalized in the model.
+
+      The s-m-n function `s` is required to be `Computable₂` (computable
+      as a function of both arguments), matching the standard requirement
+      in recursion theory that the s-m-n function is computable (in fact,
+      primitive recursive). This computability is essential for deriving
+      the recursion theorem (Kleene's fixed-point theorem) from the
+      CompModel axioms. -/
   smn :
     ∃ s : Prog → ℕ → Prog,
-      ∀ p n x, eval (s p n) x = eval p (Nat.pair n x)
+      Computable₂ s ∧ ∀ p n x, eval (s p n) x = eval p (Nat.pair n x)
 
 attribute [instance] CompModel.denumerable
 
@@ -84,7 +102,10 @@ def codeModel : CompModel where
   eval := Code.eval
   representable := fun c => ⟨c, fun _ => rfl⟩
   universal := fun c => ⟨c, fun _ => rfl⟩
-  smn := ⟨Code.curry, Code.eval_curry⟩
+  eval_partrec :=
+    (Code.eval_part.comp ((Computable.ofNat Code).comp Computable.fst)
+      Computable.snd).to₂
+  smn := ⟨Code.curry, Code.primrec₂_curry.to_comp, Code.eval_curry⟩
 
 -- ────────────────────────────────────────────────────────────────
 -- Backward-compatible standalone predicates
@@ -110,12 +131,12 @@ def CompModel.Representable (m : CompModel) : Prop :=
     recursion theorem (see `Code.fixed_point` in Mathlib for the
     concrete version on `Code`).
 
-    It is retained as a definition (rather than derived as a theorem)
-    for two reasons: (1) the derivation from s-m-n + universality for
-    an abstract model requires formalizing computable maps between
-    `Prog` and `Code`, which is substantial; (2) the definition
-    captures the conceptual content cleanly for the narrative
-    connecting the characterization to the fixed-point story. -/
+    The derivation from the CompModel axioms (eval_partrec + smn +
+    universal) is given in `CompModel.hasSelfReference_of_computable`
+    (in RogersIsomorphism.lean), which proves it for computable
+    endomorphisms `f`. The unrestricted version (all endomorphisms)
+    is retained here as a definition for the narrative connecting
+    the characterization to the fixed-point story. -/
 def CompModel.HasSelfReference (m : CompModel) : Prop :=
   ∀ f : m.Prog → m.Prog,
     ∃ p : m.Prog, ∀ n, m.eval (f p) n = m.eval p n

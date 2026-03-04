@@ -23,5 +23,9 @@ import FixedPoint.Theories.EssentiallyAlgebraic
 -- Tensor product conjectures (Claims A/A')
 import FixedPoint.Tensor.BoardmanVogt
 
+-- Accessibility (AR Theorem 2.23)
+import FixedPoint.Accessibility.RightAdjointAccessible
+
 -- Church-Turing characterization
 import FixedPoint.ChurchTuring.CharacterizationTheorem
+import FixedPoint.ChurchTuring.RogersIsomorphism
