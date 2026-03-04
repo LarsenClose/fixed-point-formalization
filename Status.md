@@ -375,6 +375,201 @@ Mathlib infrastructure that does not exist.
 
 ---
 
+## Dimensionality paper targets (NEXT_STEPS.md)
+
+Six formalization targets were identified for the "Dimensionality as Fixed Point"
+paper companion. Five are complete; one is deferred.
+
+### Target 1: Dimension via truncation filtration (DONE)
+
+Defines `TruncationLevel` (dimZero | dimSucc | dimOmega), `chainDimension : N -> TruncationLevel`,
+and `HasDimension F X d` (propositional: X is isomorphic to the n-th iterate and n maps to d).
+Proves dimension is invariant under isomorphism and each iterate has its canonical dimension.
+No sorry.
+
+File: `Dimension/TruncationLevel.lean` (134 lines).
+
+### Target 2: M increments dimension by exactly one (DONE)
+
+If X has dimension n, then F(X) has dimension n+1. The proof extracts the
+chain index, applies F to the isomorphism witness, and re-indexes.
+No sorry.
+
+File: `Dimension/IncrementDimension.lean` (76 lines).
+
+### Target 2.5: Dimension stabilizes at the fixed point (DONE)
+
+At the fixed point L where F(L) ≅ L, dimension is invariant under F:
+`HasDimension F L d <-> HasDimension F (F.obj L) d`. The proof transports
+dimension through the Lambek isomorphism in both directions.
+
+Also proves `fixedpoint_absorbs_increment`: at a fixed point with finite
+dimension chainDimension n, F(L) has both dimension n (by stability) and n+1
+(by increment). Since chainDimension is injective, the fixed point cannot have
+any finite dimension -- it lives at the omega level. This is the dimensional
+content of the D=1 result.
+
+Connects to `FixedPointSpec` via `spec_dimension_stable` and `spec_dimension_iff`.
+No sorry.
+
+File: `Dimension/Stabilization.lean` (114 lines).
+
+### Target 3: Reflexive object and self-application (DONE)
+
+Defines `ReflexiveObject` packaging the Lambek iso `[A, L] ≅ L` with derived
+operations: `selfApp : A ⊗ L --> L` (decode via phi-inverse then evaluate),
+`reflexiveCurry`/`reflexiveUncurry` (curry through the iso), and the
+`curryEquiv` witnessing these are inverse. Proves selfApp factors through eval,
+and round-trip identities for curry/uncurry. Constructs from `FixedPointSpec`.
+No sorry.
+
+File: `Reflexive/ReflexiveObject.lean` (154 lines).
+
+### Target 4: Fixed-point combinator (DONE)
+
+Constructs the categorical Y combinator from the reflexive object.
+`omega f : L --> L` is the categorical analogue of `lambda x. f(x x)`,
+defined as `reflexiveCurry (selfApp >> f)`.
+
+The key theorem `omega_fixed_point`:
+`A ◁ (omega f) >> selfApp = selfApp >> f`
+-- whiskering omega_f before self-application equals self-applying then applying f.
+
+Also defines `omegaSq f = omega f >> omega f` (the morphism-level Y(f)) and
+proves its unfolding equations. No sorry.
+
+File: `Reflexive/FixedPointCombinator.lean` (208 lines).
+
+### Target 5a: Monoidal uniqueness framework (DONE -- scaffold)
+
+States the three-step uniqueness argument:
+- Step (a): Right adjoints are unique (PROVED -- wraps `rightAdjointForcedToIHom`)
+- Step (b): M = ihom of BV monoidal structure (1 sorry -- Tier 3, depends on Claim A)
+- Step (c): M is unique given the monoidal structure (proved given adjunction hypothesis,
+  sorry in the full pipeline due to Step b)
+
+The categorical core (Steps a and c) is fully verified. The gap is in Step (b):
+establishing that the BV tensor extends to EATs. This is the same Tier 3 gap as
+`BoardmanVogt.lean`.
+
+File: `Uniqueness/MonoidalUniqueness.lean` (204 lines).
+
+### Target 5(b,c): Full monoidal uniqueness (DEFERRED)
+
+Requires the Boardman-Vogt tensor extension (Claim A, Tier 3). Not tractable
+without settling the open mathematics and building substantial Mathlib
+infrastructure.
+
+### Target 6: CPS as computational shadow of M (DEFERRED)
+
+Exploratory target: the CPS transform at response type D corresponds to
+applying ihom composed with the Lambek iso. Requires new mathematical
+development connecting the categorical CPS literature (Thielecke 1997,
+Hasegawa 2002) to the internal hom formalization. Not tractable now.
+
+### Target 7: Graded filtration theorem (DONE)
+
+The master graded filtration theorem assembling T1+T2+T2.5: the Adamek chain
+is an N-indexed filtration by dimension with canonical dimensions, strict
+grading (injective chainDimension), and stabilization at the fixed point.
+Under `HasUniqueDimension` (each object has at most one dimension), the
+fixed point has no finite dimension. Also proves by induction that the fixed
+point has all higher dimensions.
+No sorry.
+
+File: `Dimension/GradedFiltration.lean` (121 lines).
+
+### Target 8: T4 -> Kleene bridge (DONE)
+
+Connects the categorical Y combinator (T4) to Kleene's recursion theorem.
+Defines `AbstractFixedPointProperty` as the common abstraction: for every
+endomorphism, a semantic fixed point exists. Shows both the categorical omega
+and the CompModel Kleene property are instances. `FixedPointBridge` packages
+the morphism-level fixed-point equation with its iterated form. Works at
+the morphism level throughout, avoiding global-section type complications.
+No sorry.
+
+File: `Reflexive/KleeneBridge.lean` (194 lines).
+
+### Target 10: Convergence criterion theorem (DONE)
+
+Forward direction: `FixedPointSpec` -> `ReflexiveObject` -> omega ->
+fixed-point equation. `ConvergencePipeline` packages the full pipeline.
+Converse: `no_initial_algebra_no_pipeline` -- if no initial algebra exists
+(using `IsEmpty (IsInitial alg)` since `IsInitial` is a Type), no pipeline
+can be constructed. Careful handling of the initiality qualifier.
+No sorry.
+
+File: `Dimension/ConvergenceCriterion.lean` (121 lines).
+
+### Target 11: Divergence witnesses (DONE)
+
+Part 1: FinSet divergence restated dimensionally. `iterateCard a d n`
+computes cardinalities of iterated internal hom. Proves strict monotonicity,
+injectivity, and divergence to infinity when |A| >= 2 and |D| >= 2.
+
+Part 2: Thin categories. Defines `IsThin` typeclass (at most one morphism
+per hom set). Proves thin reflexive objects are trivially subterminal and
+thin categories cannot support nontrivial computation (at most one morphism
+contradicts denumerable programs requirement).
+No sorry.
+
+File: `Dimension/DivergenceWitnesses.lean` (182 lines).
+
+### Target 12: Method-result convergence (DONE)
+
+`MethodResultConvergence` structure packaging: Lambek iso, dimension
+stability (iff), dimension constancy across iterates, and increment
+absorption. Proves `fixedpoint_implies_chain_stabilized` (finite dimension
+implies chain already stabilized), `fixedpoint_no_finite_dimension` (under
+strict non-stabilization), and `fixedpoint_dimension_dichotomy` (either
+finite dimension with stabilization, or no finite dimension at all).
+Connects to `FixedPointSpec` via `spec_method_result_convergence`.
+No sorry.
+
+File: `Dimension/MethodResultConvergence.lean` (180 lines).
+
+### Target 9: Dimensional dissolution (DONE)
+
+The Yoneda embedding commutes with ihom(A) via Mathlib's
+`Adjunction.compYonedaIso` applied to `tensorLeft A ⊣ ihom A`. Rather than
+defining dimension independently for presheaves, defines `HasEmbeddedDimension`
+(presheaf is iso to yoneda of a chain object) and proves Yoneda preserves and
+reflects dimension (`yoneda_dimension_iff`). `DimensionalDissolution` structure
+packages the full result: dimension equivalence + embedded stability at the
+fixed point. No sorry.
+
+File: `Dimension/DimensionalDissolution.lean` (183 lines).
+
+### Target 13: CT Bridge -- Universal Evaluation (DEFERRED)
+
+From D ≅ [D,D], derive that D supports a universal evaluation map satisfying
+the CompModel `universal` axiom. Requires formalizing the Dom category (pointed
+CPOs with strict maps) and connecting T3's selfApp to the universal partial
+recursive function. Hard -- genuine mathematical development needed.
+
+### Target 14: CT Bridge -- Full (DEFERRED)
+
+Derive all CompModel axioms from categorical structure: universality (T13),
+representability (from the Lambek iso), s-m-n (from CCC curry), eval_partrec
+(connecting to partiality). Research-level. The standing open target across the
+paper series.
+
+### Target 15: CPS Foundations (DEFERRED)
+
+Define the categorical CPS transform from the reflexive object. Show that the
+continuation monad at R = D is the identity monad because
+[A, [A, D] -> D] ≅ [A, D] ≅ D for all A that are retracts of D. Requires
+encoding Hasegawa 1995 / Thielecke 1997 / Fuhrmann 1999.
+
+### Target 16: BV Tensor (DEFERRED)
+
+The Boardman-Vogt tensor on EAT. Would unlock T5a's sorry and the Adjunction
+paper's monoidal structure claims. Blocked by Gabriel-Ulmer duality not being
+in Mathlib.
+
+---
+
 ## File inventory
 
 | File | Lines | Sorry | Axioms | What it proves |
@@ -387,16 +582,29 @@ Mathlib infrastructure that does not exist.
 | `Iteration/FinSetDivergence.lean` | 59 | 0 | 0 | No finite fixed point exists |
 | `Specification/SubstrateIndependent.lean` | 207 | 0 | 0 | Fixed point exists and is unique |
 | `Uniqueness/RightAdjointUnique.lean` | 67 | 0 | 0 | Internal hom is the unique right adjoint |
+| `Uniqueness/MonoidalUniqueness.lean` | 204 | 1 | 0 | Factored uniqueness (Tier 3 gap in step b) |
 | `Accessibility/RightAdjointAccessible.lean` | 416 | 0 | 0 | AR 2.23: right adjoints are accessible |
 | `ChurchTuring/CharacterizationTheorem.lean` | 241 | 0 | 0 | CompModel structure, characterization theorem |
 | `ChurchTuring/RogersIsomorphism.lean` | 724 | 0 | 1 | Rogers isomorphism (uses Myhill axiom) |
 | `Theories/EssentiallyAlgebraic.lean` | 78 | 0 | 0 | EAT data definitions |
 | `Tensor/BoardmanVogt.lean` | 85 | 2 | 0 | Unpublished conjectures (placeholders) |
+| `Reflexive/ReflexiveObject.lean` | 154 | 0 | 0 | Reflexive object, selfApp, curry/uncurry |
+| `Reflexive/FixedPointCombinator.lean` | 208 | 0 | 0 | Categorical Y combinator (omega) |
+| `Dimension/TruncationLevel.lean` | 134 | 0 | 0 | Dimension definition, iso invariance |
+| `Dimension/IncrementDimension.lean` | 76 | 0 | 0 | F increments dimension by 1 |
+| `Dimension/Stabilization.lean` | 114 | 0 | 0 | Dimension stabilizes at fixed point |
+| `Dimension/GradedFiltration.lean` | 121 | 0 | 0 | Master graded filtration theorem |
+| `Dimension/DivergenceWitnesses.lean` | 182 | 0 | 0 | FinSet divergence + thin triviality |
+| `Dimension/MethodResultConvergence.lean` | 180 | 0 | 0 | Method-result convergence |
+| `Dimension/ConvergenceCriterion.lean` | 121 | 0 | 0 | Convergence criterion (fwd + converse) |
+| `Reflexive/KleeneBridge.lean` | 194 | 0 | 0 | T4 -> Kleene bridge |
+| `Dimension/DimensionalDissolution.lean` | 183 | 0 | 0 | Yoneda M-compatibility, dissolution |
 
-**Total: 2418 lines of Lean across 13 files.**
+**Total: 4289 lines of Lean across 25 files.**
 
-- **2 sorry**: both in `BoardmanVogt.lean`, both placeholders for unpublished
-  conjectures from the paper (not failed proofs). No other file depends on them.
+- **3 sorry**: 2 in `BoardmanVogt.lean` (unpublished conjectures, Tier 3), 1 in
+  `MonoidalUniqueness.lean` (Tier 3, depends on BV tensor extension). No other
+  file depends on any sorry.
 - **1 axiom** (`effective_myhill`): Myhill's Isomorphism Theorem (1955), a
   standard textbook result. Taken as axiom because the Lean proof requires ~250
   lines of `Primrec` composition we haven't written. Only `rogers_isomorphism`

@@ -29,3 +29,39 @@ import FixedPoint.Accessibility.RightAdjointAccessible
 -- Church-Turing characterization and Rogers isomorphism
 import FixedPoint.ChurchTuring.CharacterizationTheorem
 import FixedPoint.ChurchTuring.RogersIsomorphism
+
+-- Reflexive object and self-application (Target 3)
+import FixedPoint.Reflexive.ReflexiveObject
+
+-- Fixed-point combinator from reflexive object (Target 4)
+import FixedPoint.Reflexive.FixedPointCombinator
+
+-- Categorical dimension via truncation levels (Target 1)
+import FixedPoint.Dimension.TruncationLevel
+
+-- F increments dimension by 1 (Target 2)
+import FixedPoint.Dimension.IncrementDimension
+
+-- Dimension stabilizes at the fixed point (Target 2.5)
+import FixedPoint.Dimension.Stabilization
+
+-- Graded filtration theorem (Target 7)
+import FixedPoint.Dimension.GradedFiltration
+
+-- Divergence witnesses: FinSet + thin categories (Target 11)
+import FixedPoint.Dimension.DivergenceWitnesses
+
+-- Method-result convergence (Target 12)
+import FixedPoint.Dimension.MethodResultConvergence
+
+-- Convergence criterion theorem (Target 10)
+import FixedPoint.Dimension.ConvergenceCriterion
+
+-- T4 → Kleene bridge (Target 8)
+import FixedPoint.Reflexive.KleeneBridge
+
+-- Dimensional dissolution via Yoneda (Target 9)
+import FixedPoint.Dimension.DimensionalDissolution
+
+-- Monoidal uniqueness framework (Target 5a)
+import FixedPoint.Uniqueness.MonoidalUniqueness
