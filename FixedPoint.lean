@@ -60,6 +60,12 @@ import FixedPoint.Dimension.ConvergenceCriterion
 -- T4 → Kleene bridge (Target 8)
 import FixedPoint.Reflexive.KleeneBridge
 
+-- Self-indexed computation model (Layer 2 of Kleene bridge)
+import FixedPoint.Reflexive.SelfIndexedComputation
+
+-- Kleene derivation from categorical Y combinator (Target 13)
+import FixedPoint.Reflexive.KleeneDerivation
+
 -- Dimensional dissolution via Yoneda (Target 9)
 import FixedPoint.Dimension.DimensionalDissolution
 

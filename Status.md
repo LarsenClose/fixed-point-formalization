@@ -541,6 +541,38 @@ fixed point. No sorry.
 
 File: `Dimension/DimensionalDissolution.lean` (183 lines).
 
+### Kleene Bridge Layers 2 and 3 (DONE)
+
+The three-layer Kleene bridge architecture connecting categorical structure to
+classical computability:
+
+**Layer 1** (ReflexiveObject, already in T3/T4): The categorical data — Lambek
+iso, selfApp, omega, omega_fixed_point.
+
+**Layer 2** (SelfIndexedComputation): Repackages the reflexive object as a
+self-indexed computation model. D indexes its own function space: the Lambek iso
+IS the naming function, CCC curry IS s-m-n, omega IS Kleene's recursion theorem.
+No external enumeration (N) needed. Key results: `naming_equiv` (programs biject
+with functions at every base), `selfApp_recovers_named` (evaluation recovers the
+named function), `self_indexed_kleene` (omega restated in computation vocabulary),
+`SelfIndexedComputation` structure, `selfIndexedAFPP`. No sorry.
+
+**Layer 3** (KleeneDerivation): The N-bridge. `ComputabilityStructure` typeclass
+equips a reflexive object with enumerative data (Prog, eval, Denumerable,
+representable, universal, eval_partrec, s-m-n). This is the "interpreter" that
+translates categorical morphism equality into extensional program equality.
+`compModelFromReflexive` packages this into a `CompModel`.
+`kleeneDerivation` derives Kleene's recursion theorem by applying
+`hasSelfReference_of_computable` from RogersIsomorphism.lean. No sorry.
+
+The key insight: the categorical omega is the *mechanism*, but once a valid
+CompModel is constructed, Kleene follows from existing general theory.
+`categorical_implies_kleene` and `full_kleene_bridge` state the definitive
+bridge theorems.
+
+Files: `Reflexive/SelfIndexedComputation.lean` (221 lines),
+`Reflexive/KleeneDerivation.lean` (217 lines).
+
 ### Target 13: CT Bridge -- Universal Evaluation (DEFERRED)
 
 From D ≅ [D,D], derive that D supports a universal evaluation map satisfying
@@ -598,9 +630,11 @@ in Mathlib.
 | `Dimension/MethodResultConvergence.lean` | 180 | 0 | 0 | Method-result convergence |
 | `Dimension/ConvergenceCriterion.lean` | 121 | 0 | 0 | Convergence criterion (fwd + converse) |
 | `Reflexive/KleeneBridge.lean` | 194 | 0 | 0 | T4 -> Kleene bridge |
+| `Reflexive/SelfIndexedComputation.lean` | 221 | 0 | 0 | Layer 2: self-indexed computation model |
+| `Reflexive/KleeneDerivation.lean` | 217 | 0 | 0 | Layer 3: N-bridge, Kleene derivation |
 | `Dimension/DimensionalDissolution.lean` | 183 | 0 | 0 | Yoneda M-compatibility, dissolution |
 
-**Total: 4289 lines of Lean across 25 files.**
+**Total: 4730 lines of Lean across 27 files.**
 
 - **3 sorry**: 2 in `BoardmanVogt.lean` (unpublished conjectures, Tier 3), 1 in
   `MonoidalUniqueness.lean` (Tier 3, depends on BV tensor extension). No other
