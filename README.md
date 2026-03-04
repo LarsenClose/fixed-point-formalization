@@ -1,5 +1,8 @@
 # lean4-fixed-point
 
+[![Lean Action CI](https://github.com/LarsenClose/lean4-fixed-point/actions/workflows/lean_action_ci.yml/badge.svg)](https://github.com/LarsenClose/lean4-fixed-point/actions/workflows/lean_action_ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://larsenclose.github.io/lean4-fixed-point/)
+
 Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory.
 
