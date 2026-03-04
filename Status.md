@@ -392,10 +392,8 @@ Mathlib infrastructure that does not exist.
 | `ChurchTuring/RogersIsomorphism.lean` | 724 | 0 | 1 | Rogers isomorphism (uses Myhill axiom) |
 | `Theories/EssentiallyAlgebraic.lean` | 78 | 0 | 0 | EAT data definitions |
 | `Tensor/BoardmanVogt.lean` | 85 | 2 | 0 | Unpublished conjectures (placeholders) |
-| `Basic.lean` | 1 | 0 | 0 | Root import |
-| `UnivTest.lean` | 36 | 0 | 0 | Test file |
 
-**Total: ~2455 lines of Lean across 15 files.**
+**Total: 2418 lines of Lean across 13 files.**
 
 - **2 sorry**: both in `BoardmanVogt.lean`, both placeholders for unpublished
   conjectures from the paper (not failed proofs). No other file depends on them.
@@ -404,14 +402,17 @@ Mathlib infrastructure that does not exist.
   lines of `Primrec` composition we haven't written. Only `rogers_isomorphism`
   depends on it.
 
+Run `./scripts/verify.sh` to reproduce these numbers.
+
 ---
 
-## Docs inventory
+## Other files
 
-| File | Purpose | Current? |
-|------|---------|----------|
-| `docs/AR_THEOREM_PLAN.md` | Proof plan for AR 2.23 | Yes (plan completed, theorem proved) |
-| `docs/lean-mcp-tools.md` | MCP tool reference for Lean development | Yes |
-| `docs/alternative-approaches-computability.md` | Analysis of CompModel design choices | Yes |
-| `docs/alternative-approaches-ct.md` | Analysis of Gap 1/2/3 approaches | Yes |
-| `MATHLIB_PR_PLAN.md` | Plan for upstreaming Adamek theorem to Mathlib | Yes |
+| File | Purpose |
+|------|---------|
+| `README.md` | Project overview |
+| `Status.md` | This document |
+| `MATHLIB_PR_PLAN.md` | Plan for upstreaming Adamek theorem to Mathlib |
+| `docs/lean-mcp-tools.md` | MCP tool reference for Lean development |
+| `docs/archive/` | Historical planning docs (Gap 1/2 approaches, AR 2.23 plan) |
+| `scripts/verify.sh` | Build + sorry audit + axiom inventory |
