@@ -3,99 +3,128 @@
 
   The substrate-independent fixed-point specification.
 
-  Central claim: in any monoidal closed, locally presentable category C,
-  the internal-hom endofunctor ihom(A) : C ⥤ C has an initial algebra
-  whose structure map is an isomorphism (Lambek's lemma), yielding the
-  fixed-point equation ihom(A)(X) ≅ X.
+  Central claim: in any monoidal closed, locally finitely presentable category C
+  where `tensorLeft A` preserves finite presentability, the internal-hom endofunctor
+  ihom(A) : C ⥤ C has an initial algebra whose structure map is an isomorphism
+  (Lambek's lemma), yielding the fixed-point equation ihom(A)(X) ≅ X.
 
   This file defines the specification against Mathlib typeclasses without
   committing to a particular algebraic-theory substrate (EAT, Lawvere, etc.).
   Instantiation happens in Theories/.
 
-  STATUS: Tier 1 for iterationFromInitial and fixedPoint_exists (modulo
-  an explicit colimit-preservation hypothesis — see MATHLIB GAP below).
+  STATUS: Tier 1 (no sorry).
+  - SubstrateCategory: monoidal closed + locally finitely presentable (LFP).
+  - TensorLeftFinitelyPresentable A: typeclass asserting A ⊗ - preserves finite
+    presentability. Together with LFP, this gives ihom(A) finitely accessible
+    (AR 2.23 at κ = aleph₀), which implies PreservesColimitsOfShape ℕ (ihom A).
+  - fixedPoint_exists: no PreservesColimit hypothesis; derived from LFP + tensor
+    assumption via the LFP route in RightAdjointAccessible.lean.
+  - iterationFromInitial: similarly cleaned up.
   REVIEW APPROVED: User reviewed 2026-03-02. Approved for Uniqueness/ to build on.
 
-  ## MATHLIB GAP: PreservesColimit for ihom
+  ## LFP ROUTE: Eliminating the PreservesColimit hypothesis
 
-  The Adamek initial algebra theorem requires that the endofunctor F preserves
+  The ω-Adamek initial algebra theorem requires that the endofunctor F preserves
   the colimit of the initial chain (an omega-indexed sequential colimit).
 
-  For F = ihom(A), this functor is the RIGHT adjoint of (- ⊗ A). Right
-  adjoints preserve limits, NOT colimits in general. The mathematical
-  justification is:
+  For F = ihom(A), this functor is the RIGHT adjoint of tensorLeft A. Right
+  adjoints preserve limits, NOT colimits in general.
 
-    In a locally presentable category, every right adjoint is accessible
-    (Adamek-Rosicky, Theorem 2.23). An accessible functor preserves
-    kappa-filtered colimits for some regular cardinal kappa. When kappa = aleph_0,
-    this gives preservation of all filtered (= omega-filtered) colimits,
-    which includes the initial chain.
-
-  However, Mathlib (as of March 2026) does NOT have:
-    (1) The theorem that right adjoints between locally presentable categories
-        are accessible (Adamek-Rosicky 2.23).
-    (2) Therefore, no way to derive `PreservesColimit (initialChain (ihom A)) (ihom A)`
-        from `SubstrateCategory` alone.
-
-  We add `PreservesColimit (initialChain (ihom A)) (ihom A)` as an explicit
-  hypothesis. When Mathlib gains (1), this hypothesis can be removed and
-  derived from `SubstrateCategory` automatically.
-
-  NOTE ON HYPOTHESIS STRENGTH: `PreservesColimit K F` (singular, for a specific
-  diagram K) is strictly narrower than any of:
-    - `PreservesColimits F` (all colimits of all shapes)
-    - `PreservesColimitsOfShape ℕ F` (all ℕ-indexed diagrams)
-    - `PreservesFilteredColimits F` (all filtered colimits)
-  Our hypothesis asks only that ihom(A) preserve the colimit of one specific
-  omega-chain (the initial chain). This is the minimal requirement of the
-  Adamek theorem and introduces no logical inconsistencies — it does not assert
-  that ihom(A) preserves colimits it cannot preserve (e.g. non-filtered ones).
-  The eventual derivation from AR 2.23 will discharge this specific instance
-  by establishing the stronger `PreservesFilteredColimits` property, but we
-  do not assume that stronger property here.
+  The LFP route (implemented here) closes this gap as follows:
+  1. Assume C is locally FINITELY presentable (κ = aleph₀).
+  2. Assume tensorLeft A sends finitely presentable objects to finitely presentable
+     objects (TensorLeftFinitelyPresentable A).
+  3. By AR 2.23 specialized to κ = κ' = aleph₀ (proved in RightAdjointAccessible.lean):
+     ihom(A) is aleph₀-accessible = finitely accessible.
+  4. An aleph₀-accessible functor preserves all filtered colimits.
+  5. ℕ is filtered, so ihom(A) preserves colimits of shape ℕ.
+  6. In particular, ihom(A) preserves the colimit of the initial chain.
 
   What IS available from SubstrateCategory:
     - `HasColimit (initialChain (ihom A))` — follows from cocompleteness
-      (IsLocallyPresentable => HasColimitsOfSize => HasColimitsOfShape Nat)
+      (IsLocallyFinitelyPresentable extends HasColimitsOfSize.{0,0})
     - `HasInitial C` — same reasoning (colimit of the empty diagram)
 -/
 import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 import Mathlib.CategoryTheory.Endofunctor.Algebra
 import Mathlib.CategoryTheory.Presentable.LocallyPresentable
+import Mathlib.CategoryTheory.Presentable.Finite
 import Mathlib.CategoryTheory.Limits.Shapes.Terminal
 import FixedPoint.Iteration.AdamekConnection
+import FixedPoint.Accessibility.RightAdjointAccessible
 
-universe w v u
+universe v u
 
 open CategoryTheory
 open CategoryTheory.Endofunctor
 open CategoryTheory.Limits
 open FixedPoint.Iteration
+open MonoidalCategory
 
 namespace FixedPoint
 
 /-- A category satisfying the substrate-independent conditions for the
-    fixed-point construction: monoidal closed and locally presentable. -/
+    fixed-point construction: monoidal closed and locally **finitely**
+    presentable (κ = aleph₀).
+
+    Locally finitely presentable (LFP) is the standard condition for
+    categories of algebraic structures (modules, presheaves, sets, etc.).
+    It is strictly stronger than locally presentable but holds in all
+    categories of interest for the series. -/
 class SubstrateCategory (C : Type u) [Category.{v} C] [MonoidalCategory C] where
   [closed : MonoidalClosed C]
-  [presentable : IsLocallyPresentable.{w} C]
+  [presentable : IsLocallyFinitelyPresentable.{0} C]
 
 attribute [instance] SubstrateCategory.closed SubstrateCategory.presentable
 
-variable {C : Type u} [Category.{v} C] [MonoidalCategory C] [SubstrateCategory.{w} C]
+variable {C : Type u} [Category.{v} C] [MonoidalCategory C] [SubstrateCategory C]
 
-/-! ### Cocompleteness derived from local presentability
+/-! ### Cocompleteness derived from local finite presentability
 
-`SubstrateCategory` wraps `IsLocallyPresentable`, which asserts the existence of a
-regular cardinal `kappa` witnessing `IsCardinalLocallyPresentable C kappa`. That class
-extends `HasColimitsOfSize.{w, w}`, which we shrink to `HasColimitsOfSize.{0, 0}` to
-obtain colimits for omega-indexed diagrams (the initial chain). -/
+`SubstrateCategory` wraps `IsLocallyFinitelyPresentable`, which asserts
+`IsCardinalLocallyPresentable C aleph₀`. That class extends
+`HasColimitsOfSize.{0, 0}`, giving colimits for omega-indexed diagrams. -/
 
 /-- A substrate category has all small colimits (in universe 0), hence in particular
     initial objects and colimits of omega-chains. -/
-noncomputable instance : HasColimitsOfSize.{0, 0} C := by
-  obtain ⟨_, _, hLP⟩ := IsLocallyPresentable.exists_cardinal C
-  exact hasColimitsOfSizeShrink.{0, 0, w, w} C
+noncomputable instance : HasColimitsOfSize.{0, 0} C := inferInstance
+
+/-! ### The tensor preservation typeclass
+
+For the LFP route to work, we need that for the specific closed object A,
+the functor `tensorLeft A` (i.e., X ↦ A ⊗ X) sends finitely presentable objects
+to finitely presentable objects. -/
+
+/-- `TensorLeftFinitelyPresentable A` asserts that `tensorLeft A` preserves finite
+    presentability: if X is finitely presentable (aleph₀-presentable), so is A ⊗ X.
+
+    This holds, for example, when:
+    - A is itself finitely presentable in a symmetric monoidal category where the
+      tensor product preserves filtered colimits in each variable separately.
+    - In the category of R-modules, A ⊗_R - preserves filtered colimits iff A is
+      finitely presented (= aleph₀-presentable), which is exactly our hypothesis.
+
+    This typeclass replaces the old `[PreservesColimit (initialChain (ihom A)) (ihom A)]`
+    hypothesis. It is mathematically cleaner: it asserts finite presentability of
+    A ⊗ X (a property of objects) rather than colimit preservation (a property of
+    functors), and from it we derive the colimit preservation via AR 2.23. -/
+class TensorLeftFinitelyPresentable (A : C) : Prop where
+  /-- A ⊗ X is finitely presentable whenever X is. -/
+  preserves : ∀ (X : C), IsFinitelyPresentable.{0} X → IsFinitelyPresentable.{0} (A ⊗ X)
+
+/-- From `TensorLeftFinitelyPresentable A`, derive that `ihom A` preserves colimits
+    of shape ℕ. This is the key derivation via the LFP route (AR 2.23 at aleph₀). -/
+noncomputable instance ihom_preservesColimitsOfShape_nat_of_tensor
+    (A : C) [Closed A] [h : TensorLeftFinitelyPresentable A] :
+    PreservesColimitsOfShape ℕ (ihom A) :=
+  FixedPoint.Accessibility.ihom_preservesColimitsOfShape_nat A
+    (fun X hX => h.preserves X hX)
+
+/-- From `TensorLeftFinitelyPresentable A`, derive that `ihom A` preserves the
+    colimit of any specific ℕ-indexed diagram (including the initial chain). -/
+noncomputable instance ihom_preservesColimit_of_tensor
+    (A : C) [Closed A] [TensorLeftFinitelyPresentable A] (K : ℕ ⥤ C) :
+    PreservesColimit K (ihom A) := inferInstance
 
 /-- An algebra for the ihom(A) endofunctor: an object X with a morphism
     ihom(A)(X) ⟶ X. Mathlib's `ihom A` is already a functor `C ⥤ C`,
@@ -132,16 +161,16 @@ noncomputable def FixedPointSpec.fixedPointIso {A : C} [Closed A]
   asIso fp.algebra.str
 
 /-- Main existence theorem: for any closed object A in a substrate category,
-    the ihom(A) endofunctor has an initial algebra, provided ihom(A) preserves
-    the colimit of the initial chain.
+    the ihom(A) endofunctor has an initial algebra.
 
-    The colimit existence follows from cocompleteness of locally presentable
-    categories. The preservation hypothesis is the content of
-    Adamek-Rosicky Theorem 2.23 (right adjoints between locally presentable
-    categories are accessible), which Mathlib does not yet formalize.
-    See the MATHLIB GAP note at the top of this file. -/
-theorem fixedPoint_exists (A : C) [Closed A]
-    [PreservesColimit (initialChain (ihom A)) (ihom A)] :
+    **No PreservesColimit hypothesis required.** The colimit preservation is
+    derived from the LFP structure:
+    - SubstrateCategory gives IsLocallyFinitelyPresentable C (LFP).
+    - TensorLeftFinitelyPresentable A gives that A ⊗ - preserves finite presentability.
+    - By AR 2.23 at κ = aleph₀, ihom(A) is aleph₀-accessible.
+    - ℕ is filtered, so ihom(A) preserves ℕ-indexed colimits.
+    - The ω-Adamek theorem then gives the initial algebra. -/
+theorem fixedPoint_exists (A : C) [Closed A] [TensorLeftFinitelyPresentable A] :
     ∃ _ : FixedPointSpec A, True :=
   ⟨{ algebra := adamekFromInitial (ihom A)
      isInitial := adamekFromInitial_isInitial (ihom A) }, trivial⟩
@@ -166,9 +195,11 @@ Adamek chain ⊥ → ihom(⊥)(⊥) → ihom(⊥)²(⊥) → ⋯ -/
 
     The `HasInitial C` hypothesis is redundant (it follows from
     `SubstrateCategory`), but retained for clarity at use sites.
-    The `PreservesColimit` hypothesis is the Mathlib gap documented above. -/
+
+    **No PreservesColimit hypothesis required** — it is derived from
+    TensorLeftFinitelyPresentable via the LFP route. -/
 noncomputable def iterationFromInitial [HasInitial C]
-    [PreservesColimit (initialChain (ihom (⊥_ C))) (ihom (⊥_ C))] :
+    [TensorLeftFinitelyPresentable (⊥_ C)] :
     FixedPointSpec (⊥_ C) :=
   { algebra := adamekFromInitial (ihom (⊥_ C))
     isInitial := adamekFromInitial_isInitial (ihom (⊥_ C)) }

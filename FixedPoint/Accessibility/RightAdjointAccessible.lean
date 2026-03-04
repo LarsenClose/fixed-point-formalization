@@ -353,46 +353,64 @@ theorem ihom_isAccessible
   haveI := hLP
   exact rightAdjoint_isAccessible (ihom.adjunction A) κ
 
-/-- The ihom endofunctor preserves colimits of shape Nat.
-    **Status**: sorry — genuine mathematical gap.
+/-- In a locally **finitely** presentable monoidal closed category, if `tensorLeft A`
+    sends finitely presentable objects to finitely presentable objects, then `ihom(A)`
+    preserves all colimits of shape ℕ.
 
-    From `ihom_isAccessible`, we obtain `IsCardinalAccessible (ihom A) κ'` for some
-    κ' ≥ aleph_0. However ℕ is only aleph_0-filtered (= filtered), and is NOT
-    κ'-filtered when κ' > aleph_0 (since ℕ has no upper bound for countably infinite
-    subsets). So `preservesColimitsOfShape_of_isCardinalAccessible` does not apply.
+    **Proof** (LFP route, closing the gap noted in SubstrateIndependent.lean):
+    1. Apply AR 2.23 at κ = κ' = aleph_0:
+       - For each aleph_0-presentable X, the adjunction iso gives
+         `Hom(X, ihom(A)(-)) ≅ Hom(A ⊗ X, -)`.
+       - Since A ⊗ X is aleph_0-presentable (hypothesis), `Hom(A ⊗ X, -)` preserves
+         aleph_0-filtered = filtered colimits.
+       - The aleph_0-presentable objects form a strong generator (IsLocallyFinitelyPresentable).
+       - Hence `ihom(A)` preserves aleph_0-filtered = filtered colimits.
+    2. ℕ is filtered (= aleph_0-filtered), so `ihom(A)` preserves ℕ-shaped colimits.
 
-    The gap is between "accessible at some κ'" and "ω-continuous" (preserves ω-chains).
-    Closing this requires one of:
-    (a) Assuming `IsCardinalLocallyPresentable C aleph_0` (locally finitely presentable)
-        AND that `tensorLeft A` preserves finite presentability, giving κ' = aleph_0.
-    (b) Generalizing Adamek's theorem to ordinal-indexed chains (AR Theorem 1.66):
-        a κ'-accessible endofunctor on a cocomplete category has an initial algebra
-        as the colimit of a κ'-indexed transfinite chain. This is the mathematically
-        correct generalization but requires significant additional infrastructure.
-    (c) Keeping `PreservesColimit (initialChain F) F` as an explicit hypothesis
-        (current approach in SubstrateIndependent.lean).
-
-    Note: AR 2.23 itself is fully proved (`rightAdjoint_isAccessible`). The gap is
-    only in connecting general accessibility to the ℕ-indexed Adamek theorem. -/
+    The hypothesis `hA` says `tensorLeft A` (the functor X ↦ A ⊗ X) preserves finite
+    presentability. This holds, for example, when A is finitely presentable and the
+    monoidal structure is closed and compatible with filtered colimits (e.g. in module
+    categories, presheaf categories, etc.). -/
 theorem ihom_preservesColimitsOfShape_nat
     {C : Type u₁} [Category.{v₁} C]
     [MonoidalCategory C] [MonoidalClosed C]
-    [IsLocallyPresentable.{w} C] (A : C) [Closed A] :
+    [IsLocallyFinitelyPresentable.{0} C]
+    (A : C) [Closed A]
+    (hA : ∀ (X : C), IsFinitelyPresentable.{0} X →
+        IsFinitelyPresentable.{0} ((MonoidalCategory.tensorLeft A).obj X)) :
     PreservesColimitsOfShape ℕ (ihom A) := by
-  sorry
+  -- Aleph0 is a regular cardinal (needed for instance resolution)
+  haveI : Fact (Cardinal.aleph0 : Cardinal.{0}).IsRegular := Cardinal.fact_isRegular_aleph0
+  -- Step 1: ihom A is aleph0-accessible (AR 2.23 at κ = κ' = aleph0)
+  have hAcc : (ihom A).IsCardinalAccessible (Cardinal.aleph0 : Cardinal.{0}) :=
+    isCardinalAccessible_of_coyoneda_comp_accessible Cardinal.aleph0 Cardinal.aleph0
+      (le_refl Cardinal.aleph0)
+      (fun X hX => by
+        haveI : IsFinitelyPresentable.{0} X := hX
+        haveI : IsCardinalPresentable ((MonoidalCategory.tensorLeft A).obj X) Cardinal.aleph0 :=
+          hA X hX
+        exact isCardinalAccessible_coyoneda_comp_rightAdj (ihom.adjunction A) Cardinal.aleph0 X)
+  -- Step 2: ℕ is aleph0-filtered (= filtered)
+  have hfilt : IsCardinalFiltered (ℕ : Type 0) (Cardinal.aleph0 : Cardinal.{0}) := by
+    rw [isCardinalFiltered_aleph0_iff]
+    infer_instance
+  -- Step 3: aleph0-accessible functor preserves colimits of aleph0-filtered shapes
+  exact @Functor.preservesColimitsOfShape_of_isCardinalAccessible
+    C _ C _ (ihom A) (Cardinal.aleph0 : Cardinal.{0}) _ hAcc (ℕ : Type 0) inferInstance hfilt
 
-/-- The key application: ihom(A) preserves the colimit of any
-    Nat-indexed diagram (and hence the initial chain).
-    This is the hypothesis that SubstrateIndependent.lean currently
-    assumes. -/
-instance ihom_preservesColimit_nat_diagram
+/-- The key application: ihom(A) preserves the colimit of any Nat-indexed diagram.
+    Follows from `ihom_preservesColimitsOfShape_nat` under the LFP hypothesis. -/
+theorem ihom_preservesColimit_nat_diagram
     {C : Type u₁} [Category.{v₁} C]
     [MonoidalCategory C] [MonoidalClosed C]
-    [IsLocallyPresentable.{w} C]
-    (A : C) [Closed A] (K : ℕ ⥤ C) :
+    [IsLocallyFinitelyPresentable.{0} C]
+    (A : C) [Closed A]
+    (hA : ∀ (X : C), IsFinitelyPresentable.{0} X →
+        IsFinitelyPresentable.{0} ((MonoidalCategory.tensorLeft A).obj X))
+    (K : ℕ ⥤ C) :
     PreservesColimit K (ihom A) := by
   have : PreservesColimitsOfShape ℕ (ihom A) :=
-    ihom_preservesColimitsOfShape_nat A
+    ihom_preservesColimitsOfShape_nat A hA
   infer_instance
 
 end FixedPoint.Accessibility
