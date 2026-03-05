@@ -1,4 +1,4 @@
-name = "lean4-fixed-point"
+name = "fixed-point-formalization"
 version = "0.1.0"
 keywords = ["math"]
 defaultTargets = ["FixedPoint"]
