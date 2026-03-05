@@ -17,6 +17,9 @@ import FixedPoint.Iteration.ChainShift
 import FixedPoint.Iteration.AdamekTheorem
 import FixedPoint.Iteration.AdamekConnection
 
+-- Tower morphism framework: ω-chain collapse theorem (Targets 17/18)
+import FixedPoint.Iteration.TowerMorphism
+
 -- Theory definitions
 import FixedPoint.Theories.EssentiallyAlgebraic
 

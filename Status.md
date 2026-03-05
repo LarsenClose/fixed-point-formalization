@@ -584,6 +584,7 @@ in Mathlib.
 | `Iteration/AdamekConnection.lean` | 68 | 0 | 0 | Connection to existing Mathlib iteration |
 | `Iteration/AdamekChain.lean` | 73 | 0 | 0 | Chain scaffolding |
 | `Iteration/FinSetDivergence.lean` | 59 | 0 | 0 | No finite fixed point exists |
+| `Iteration/TowerMorphism.lean` | 242 | 0 | 0 | ω-chain collapse theorem (tower morphisms) |
 | `Specification/SubstrateIndependent.lean` | 207 | 0 | 0 | Fixed point exists and is unique |
 | `Uniqueness/RightAdjointUnique.lean` | 67 | 0 | 0 | Internal hom is the unique right adjoint |
 | `Uniqueness/MonoidalUniqueness.lean` | 199 | 0 | 0 | Factored uniqueness (step c proved) |
@@ -610,7 +611,7 @@ in Mathlib.
 | `Uniqueness/TerminalCharacterization.lean` | 158 | 0 | 0 | Terminal characterization (proved form + negative findings) |
 | `Uniqueness/SelfIndexedTerminalProperty.lean` | 206 | 0 | 0 | Self-indexed terminal property (revised conjecture) |
 
-**Total: 6363 lines of Lean across 31 files.**
+**Total: 6605 lines of Lean across 32 files.**
 
 - **0 sorry**. All theorems are fully proved.
 - **0 custom axioms**. The only axioms used are Lean's standard three:
