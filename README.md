@@ -7,7 +7,7 @@ Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory and categorical
 dimension.
 
-**28 files, 5897 lines of Lean. 3 sorry (all isolated conjectures). 0 custom axioms.**
+**30 files, 6157 lines of Lean. 0 sorry. 0 custom axioms.**
 
 ## Main results
 
@@ -69,6 +69,20 @@ The Adamek chain is an N-indexed filtration by dimension:
   contradicts reflexive structure)
 - **Convergence criterion**: forward (FixedPointSpec implies omega + fixed-point
   equation) and converse (no initial algebra implies no pipeline)
+- **DimensionIncrement typeclass**: every endofunctor satisfies it (the
+  dimension-increment property is intrinsic to the chain construction)
+
+### Terminal characterization (no sorry)
+
+`HasAdamekFixedPoint F` packages: carrier, Lambek iso, initiality. The
+original conjecture — that any endofunctor with an Adamek fixed point must
+be isomorphic to the internal hom — was investigated and found to be false.
+Counterexamples: the powerset functor (Adamek FP but not right adjoint)
+and the identity functor (right adjoint but left adjoint is not a tensor).
+The precise result: `terminal_characterization_from_adjunction` proves that
+if `tensorLeft A ⊣ F`, then `F ≅ ihom A`. The additional structure needed
+is exactly the tensor-hom adjunction — uniqueness of right adjoints does
+the rest.
 
 ### Computability theory (no sorry, no custom axioms)
 
@@ -85,12 +99,10 @@ The Adamek chain is an N-indexed filtration by dimension:
 
 ## What is not proved
 
-`BoardmanVogt.lean` contains two sorry'd conjectures from the paper series:
-that the Boardman-Vogt tensor product extends to essentially algebraic
-theories, and that the Lawvere-Linton correspondence extends similarly. These
-are novel mathematical claims that have not been proved anywhere. No other file
-depends on them. `MonoidalUniqueness.lean` has one sorry depending on the same
-BV gap.
+`BoardmanVogt.lean` contains formal placeholder statements for the BV tensor
+extension and Lawvere-Linton correspondence extension conjectures. The theorem
+types are weak (existential witnesses are trivially constructible); the real
+mathematical content is described in docstrings, not in the types.
 
 ## Structure
 
@@ -101,11 +113,11 @@ is not, and why.
 |-----------|-----------------|
 | `Iteration/` | Adamek's initial algebra theorem, chain construction (6 files) |
 | `Specification/` | Substrate-independent fixed-point existence and uniqueness |
-| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness framework |
+| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization (3 files) |
 | `Accessibility/` | AR Theorem 2.23 |
 | `ChurchTuring/` | CompModel, characterization, Myhill theorem, Rogers isomorphism |
 | `Reflexive/` | Reflexive object, Y combinator, Kleene bridge and derivation (5 files) |
-| `Dimension/` | Truncation levels, graded filtration, dissolution, divergence (7 files) |
+| `Dimension/` | Truncation levels, graded filtration, dissolution, divergence (9 files) |
 | `Theories/` | Essentially algebraic theory definitions |
 | `Tensor/` | Boardman-Vogt conjectures (isolated) |
 

@@ -49,6 +49,9 @@ import FixedPoint.Dimension.Stabilization
 -- Graded filtration theorem (Target 7)
 import FixedPoint.Dimension.GradedFiltration
 
+-- DimensionIncrement typeclass (Target 17a)
+import FixedPoint.Dimension.DimensionIncrement
+
 -- Divergence witnesses: FinSet + thin categories (Target 11)
 import FixedPoint.Dimension.DivergenceWitnesses
 
@@ -72,3 +75,9 @@ import FixedPoint.Dimension.DimensionalDissolution
 
 -- Monoidal uniqueness framework (Target 5a)
 import FixedPoint.Uniqueness.MonoidalUniqueness
+
+-- Terminal characterization conjecture (Target 17b)
+import FixedPoint.Uniqueness.TerminalCharacterization
+
+-- Self-indexed terminal property (revised conjecture)
+import FixedPoint.Uniqueness.SelfIndexedTerminalProperty

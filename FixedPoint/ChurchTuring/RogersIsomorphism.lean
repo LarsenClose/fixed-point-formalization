@@ -367,7 +367,8 @@ theorem CompModel.projEvalCode_pair (m : CompModel) (i k x : ℕ) :
     Code.eval m.projEvalCode (Nat.pair (Nat.pair i k) x) =
       m.eval (Denumerable.ofNat m.Prog i) x := by
   unfold projEvalCode
-  simp [Code.eval, Nat.unpair_pair, Part.bind_some, Part.map_some, Seq.seq]
+  suffices m.evalCode.eval (Nat.pair i x) = m.eval (Denumerable.ofNat m.Prog i) x by
+    simpa [Code.eval, Nat.unpair_pair, Part.bind_some, Part.map_some, Seq.seq]
   exact m.evalCode_pair i x
 
 /-- A program in model `m` computing the projection evaluator. -/

@@ -438,13 +438,13 @@ private lemma mem_of_lookupFwd_eq_some
     (h : lookupFwd state a = some b) : (a, b) ∈ state := by
   unfold lookupFwd at h
   cases hfind : state.find? (fun p => p.1 == a) with
-  | none => simp [hfind] at h
+  | none => rw [hfind, Option.map] at h; cases h
   | some p =>
-    simp [hfind] at h
+    rw [hfind] at h; cases h
     have hp_mem := List.mem_of_find?_eq_some hfind
     have hp_pred := List.find?_some hfind
     rw [beq_iff_eq] at hp_pred
-    rw [← h, ← hp_pred]; convert hp_mem
+    exact hp_pred ▸ hp_mem
 
 /-- Extract a membership proof from a `lookupBwd` result. -/
 private lemma mem_of_lookupBwd_eq_some
@@ -452,13 +452,13 @@ private lemma mem_of_lookupBwd_eq_some
     (h : lookupBwd state b = some a) : (a, b) ∈ state := by
   unfold lookupBwd at h
   cases hfind : state.find? (fun p => p.2 == b) with
-  | none => simp [hfind] at h
+  | none => rw [hfind, Option.map] at h; cases h
   | some p =>
-    simp [hfind] at h
+    rw [hfind] at h; cases h
     have hp_mem := List.mem_of_find?_eq_some hfind
     have hp_pred := List.find?_some hfind
     rw [beq_iff_eq] at hp_pred
-    rw [← h, ← hp_pred]; convert hp_mem
+    exact hp_pred ▸ hp_mem
 
 -- ────────────────────────────────────────────────────────────────
 -- Nodup proofs

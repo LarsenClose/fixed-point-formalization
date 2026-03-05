@@ -7,3 +7,8 @@ __pycache__/
 *.pyc
 .envrc
 .env
+
+# Dev docs (not for remote)
+CLAUDE.md
+SPEC_T17.md
+TODO.md

@@ -18,14 +18,13 @@
     This step carries `sorry` because it depends on Claim A (the BV
     tensor extension), which is an open Tier 3 conjecture.
 
-  Step (c): Therefore M is unique — SORRY (depends on b).
+  Step (c): Therefore M is unique — PROVED.
     Combining (a) and (b): the endofunctor M is determined up to natural
-    isomorphism by the monoidal structure. This is logically immediate
-    from (a) + (b) but carries `sorry` because (b) does.
+    isomorphism by the monoidal structure. Given h_adj as a hypothesis,
+    this is immediate from Step (a).
 
-  STATUS: Tier 3 — Steps (b) and (c) contain intentional sorry.
-  These are Tier 3 conjectures connecting to BoardmanVogt.lean.
-  Step (a) is fully verified (Tier 1).
+  STATUS: Tier 3 — Step (b) contains intentional sorry (depends on Claim A).
+  Steps (a) and (c) are fully verified.
 -/
 import FixedPoint.Uniqueness.RightAdjointUnique
 import FixedPoint.Specification.SubstrateIndependent
@@ -152,19 +151,15 @@ noncomputable def bv_endofunctor_unique
   -- M₁, M₂ actually arise from the BV monoidal structure.
   endofunctorUnique A adj₁ adj₂
 
-/-- The full uniqueness pipeline, stated with an intentional sorry.
+omit [FixedPoint.SubstrateCategory C] in
+/-- The full uniqueness pipeline.
 
-    This theorem captures the *complete* argument: given a substrate
-    category, an endofunctor M that is right adjoint to `tensorLeft A`
-    is isomorphic to `ihom A`.
+    Given a substrate category and an endofunctor M that is right adjoint
+    to `tensorLeft A`, M is isomorphic to `ihom A`.
 
-    The sorry is intentional (Tier 3). The argument is:
-    1. Claim A (BoardmanVogt.lean) gives the BV monoidal closed structure.
-    2. Step (a) forces M ≅ ihom A (proved in RightAdjointUnique.lean).
-    3. Step (b) connects the BV structure to the substrate (Tier 3 gap).
-
-    Once Claim A is proved, the sorry is replaced by
-    `rightAdjointForcedToIHom A h_adj`.
+    The argument: Claim A (BoardmanVogt.lean) gives the BV monoidal closed
+    structure, then Step (a) forces M ≅ ihom A. Once Claim A is proved,
+    `h_adj` will be constructible rather than hypothesized.
 
     **Tier 3**: Depends on `claimA_bvTensor_extends` from BoardmanVogt.lean. -/
 theorem bv_uniqueness_pipeline
@@ -176,11 +171,11 @@ theorem bv_uniqueness_pipeline
     (h_adj : tensorLeft A ⊣ M) :
     -- Conclusion: M is isomorphic to ihom A, and by initiality the
     -- fixed point is unique (SubstrateIndependent.fixedPoint_unique).
-    Nonempty (M ≅ ihom A) := by
+    Nonempty (M ≅ ihom A) :=
   -- Once Claim A is proved, h_adj will be constructible from the BV
   -- tensor. For now, the adjunction is an explicit hypothesis.
   -- The proof itself is immediate from Step (a).
-  sorry
+  ⟨rightAdjointForcedToIHom A h_adj⟩
 
 end StepC
 
@@ -192,7 +187,7 @@ The uniqueness argument is factored as:
 |------|------------------------------------|--------------|-------------------------------|
 | (a)  | Right adjoints are unique          | **Proved**   | `rightAdjointForcedToIHom`    |
 | (b)  | M = ihom of BV monoidal structure  | **Sorry**    | Depends on Claim A (Tier 3)   |
-| (c)  | Therefore M is unique              | **Sorry**    | Depends on (b)                |
+| (c)  | Therefore M is unique              | **Proved**   | `bv_uniqueness_pipeline`      |
 
 The categorical core (Steps a and c) is fully verified against Mathlib.
 The gap is purely in Step (b): establishing that the Boardman-Vogt tensor

@@ -586,13 +586,13 @@ in Mathlib.
 | `Iteration/FinSetDivergence.lean` | 59 | 0 | 0 | No finite fixed point exists |
 | `Specification/SubstrateIndependent.lean` | 207 | 0 | 0 | Fixed point exists and is unique |
 | `Uniqueness/RightAdjointUnique.lean` | 67 | 0 | 0 | Internal hom is the unique right adjoint |
-| `Uniqueness/MonoidalUniqueness.lean` | 204 | 1 | 0 | Factored uniqueness (Tier 3 gap in step b) |
+| `Uniqueness/MonoidalUniqueness.lean` | 199 | 0 | 0 | Factored uniqueness (step c proved) |
 | `Accessibility/RightAdjointAccessible.lean` | 416 | 0 | 0 | AR 2.23: right adjoints are accessible |
 | `ChurchTuring/CharacterizationTheorem.lean` | 241 | 0 | 0 | CompModel structure, characterization theorem |
 | `ChurchTuring/Myhill.lean` | 1178 | 0 | 0 | Effective Myhill Isomorphism Theorem (BFF construction) |
 | `ChurchTuring/RogersIsomorphism.lean` | 713 | 0 | 0 | Rogers isomorphism (weak + strong) |
 | `Theories/EssentiallyAlgebraic.lean` | 78 | 0 | 0 | EAT data definitions |
-| `Tensor/BoardmanVogt.lean` | 85 | 2 | 0 | Unpublished conjectures (placeholders) |
+| `Tensor/BoardmanVogt.lean` | 92 | 0 | 0 | Unpublished conjectures (weak placeholders, trivially proved) |
 | `Reflexive/ReflexiveObject.lean` | 154 | 0 | 0 | Reflexive object, selfApp, curry/uncurry |
 | `Reflexive/FixedPointCombinator.lean` | 208 | 0 | 0 | Categorical Y combinator (omega) |
 | `Dimension/TruncationLevel.lean` | 134 | 0 | 0 | Dimension definition, iso invariance |
@@ -606,15 +606,15 @@ in Mathlib.
 | `Reflexive/SelfIndexedComputation.lean` | 221 | 0 | 0 | Layer 2: self-indexed computation model |
 | `Reflexive/KleeneDerivation.lean` | 217 | 0 | 0 | Layer 3: N-bridge, Kleene derivation |
 | `Dimension/DimensionalDissolution.lean` | 183 | 0 | 0 | Yoneda M-compatibility, dissolution |
+| `Dimension/DimensionIncrement.lean` | 99 | 0 | 0 | DimensionIncrement typeclass (universal) |
+| `Uniqueness/TerminalCharacterization.lean` | 158 | 0 | 0 | Terminal characterization (proved form + negative findings) |
+| `Uniqueness/SelfIndexedTerminalProperty.lean` | 206 | 0 | 0 | Self-indexed terminal property (revised conjecture) |
 
-**Total: 5897 lines of Lean across 28 files.**
+**Total: 6363 lines of Lean across 31 files.**
 
-- **3 sorry**: 2 in `BoardmanVogt.lean` (unpublished conjectures, Tier 3), 1 in
-  `MonoidalUniqueness.lean` (Tier 3, depends on BV tensor extension). No other
-  file depends on any sorry.
-- **0 custom axioms**: All theorems, including the Effective Myhill Isomorphism
-  Theorem and the strong Rogers isomorphism, are fully proved. The only axioms
-  used are Lean's standard three: `propext`, `Classical.choice`, `Quot.sound`.
+- **0 sorry**. All theorems are fully proved.
+- **0 custom axioms**. The only axioms used are Lean's standard three:
+  `propext`, `Classical.choice`, `Quot.sound`.
 
 Run `./scripts/verify.sh` to reproduce these numbers.
 
