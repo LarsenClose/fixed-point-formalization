@@ -46,6 +46,15 @@ import FixedPoint.Reflexive.ReflexiveObject
 -- Fixed-point combinator from reflexive object (Target 4)
 import FixedPoint.Reflexive.FixedPointCombinator
 
+-- Containerization: reflexive fixed point as closed container
+import FixedPoint.Reflexive.Containerization
+
+-- Identity loop: identity modulation as computational core
+import FixedPoint.Reflexive.IdentityLoop
+
+-- Lambda calculus model: reflexive object as universal computation
+import FixedPoint.Reflexive.LambdaModel
+
 -- Categorical dimension via truncation levels (Target 1)
 import FixedPoint.Dimension.TruncationLevel
 
@@ -102,3 +111,6 @@ import FixedPoint.Dimension.DimensionTowerChain
 
 -- Tower initiality: Adamek chain is initial among all M-generated chains
 import FixedPoint.Iteration.TowerInitiality
+
+-- Triforce: Identity as Forced Development
+import FixedPoint.Triforce

@@ -1,6 +1,6 @@
 # Project Status: Fixed-Point Formalization
 
-Lean 4 v4.28.0 / Mathlib v4.28.0. Last updated: 2026-03-04.
+Lean 4 v4.28.0 / Mathlib v4.28.0. Last updated: 2026-03-05.
 
 This document walks through what the project has proved, what it has not proved,
 and where the gaps are -- in plain language, with the full reasoning chains
@@ -593,6 +593,57 @@ Key results: `adamekChainMorphismComponents` (level-wise maps),
 
 File: `Iteration/TowerInitiality.lean` (127 lines).
 
+### Triforce: Identity as Forced Development (DONE)
+
+The `Triforce M` structure packages the entire initial algebra construction as
+a single CT configuration: Development (the Adamek chain), Identity (Lambek iso),
+Forced (tower initiality), and self-identity (collapse to own colimit is identity).
+`adamekTriforce` constructs from existing infrastructure. Visibility derivations:
+`Triforce.reflexiveObject` in monoidal closed context, `Triforce.selfIndexed` when
+A = carrier. No sorry.
+
+File: `Triforce.lean` (145 lines).
+
+### Containerization: reflexive fixed point as closed container (DONE)
+
+`ClosedContainer` formalizes that the reflexive object IS a container: `eval`
+(opening/evaluation), `name` (closing/reification), with β-law (eval after name
+recovers content) and η-law (name after eval recovers the name). The Lambek iso
+is the container boundary. Derives self-reference (`name(eval)` = the quine) and
+fixed points of all endomorphisms from container operations alone. No sorry.
+
+File: `Reflexive/Containerization.lean` (144 lines).
+
+### Identity loop: identity modulation as computational core (DONE)
+
+`IdentityLoop` packages four equations about the identity morphism:
+1. `selfApp = reflexiveUncurry(𝟙)` — evaluation is identity unfolded
+2. `omega(𝟙) = reflexiveCurry(selfApp)` — the quine is evaluation folded
+3. `reflexiveCurry(reflexiveUncurry(𝟙)) = 𝟙` — fold after unfold = identity
+4. `reflexiveUncurry(reflexiveCurry(selfApp)) = selfApp` — unfold after fold = eval
+
+The quine `omega(𝟙)` is the self-recognition element: L contains, as a datum,
+the act of running itself. `quine_self_recognition` proves `A ◁ quine ≫ selfApp = selfApp`.
+`computation_from_identity` proves all computation is identity, unfolded, then post-composed.
+No sorry.
+
+File: `Reflexive/IdentityLoop.lean` (93 lines).
+
+### Lambda calculus model: universal computation without ℕ (DONE)
+
+`LambdaModel` formalizes that a reflexive object with carrier ≅ A is a model of the
+untyped lambda calculus: `app : L ⊗ L → L` (application), `abs : (L ⊗ X → L) → (X → L)`
+(abstraction), β-reduction, η-expansion. Construction threads the carrier ≅ A iso
+through tensor products using whisker exchange and comp_whiskerRight.
+
+`omegaMap_eq` proves the fixed-point equation purely in lambda model terms:
+`L ◁ omegaMap(f) ≫ app = app ≫ f`. Since the untyped lambda calculus is
+Turing-complete, the reflexive fixed point supports universal computation
+without ℕ-enumeration, without choice beyond colimit existence, without
+external counting. No sorry.
+
+File: `Reflexive/LambdaModel.lean` (178 lines).
+
 ### Target 13: CT Bridge -- Universal Evaluation (DEFERRED)
 
 From D ≅ [D,D], derive that D supports a universal evaluation map satisfying
@@ -664,8 +715,12 @@ in Mathlib.
 | `Dimension/ConvergenceCriterion.lean` | 121 | 0 | 0 | Convergence criterion (fwd + converse) |
 | `Dimension/DimensionalDissolution.lean` | 183 | 0 | 0 | Yoneda M-compatibility, dissolution |
 | `Dimension/DimensionTowerChain.lean` | 91 | 0 | 0 | Dimension-tower chain bridge |
+| `Triforce.lean` | 145 | 0 | 0 | Triforce: Development + Identity + Forced + self-identity |
+| `Reflexive/Containerization.lean` | 144 | 0 | 0 | Closed container: eval/name with β + η |
+| `Reflexive/IdentityLoop.lean` | 93 | 0 | 0 | Identity modulation as computational core |
+| `Reflexive/LambdaModel.lean` | 178 | 0 | 0 | Untyped lambda calculus model (universal computation) |
 
-**Total: 38 files of Lean.**
+**Total: 42 files of Lean.**
 
 - **0 sorry**.
 - **0 custom axioms**. The only axioms used are Lean's standard three:

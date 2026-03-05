@@ -7,7 +7,7 @@ Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory and categorical
 dimension.
 
-**38 files. 0 sorry. 0 custom axioms.**
+**42 files. 0 sorry. 0 custom axioms.**
 
 ## Main results
 
@@ -34,6 +34,25 @@ encodes its own function space. From this structure:
   ```
   This is the morphism-level Kleene recursion theorem — every transformation of
   the carrier has a semantic fixed point.
+
+### Containerization, identity modulation, and universal computation (no sorry)
+
+The reflexive fixed point L ≅ [A, L] is a **closed container**: L contains its
+own transformation space, and the Lambek iso is the container boundary — applying
+the generator doesn't escape L. From containerization alone:
+
+- **Identity loop**: `selfApp = reflexiveUncurry(𝟙)` (evaluation is identity
+  unfolded), `omega(𝟙) = reflexiveCurry(selfApp)` (the quine is evaluation
+  folded). Identity modulation — fold/unfold via the Lambek iso — is the
+  computational core.
+- **Lambda calculus model**: When the carrier L ≅ A (reflexive domain equation),
+  the reflexive object is a model of the untyped lambda calculus: `app` (selfApp),
+  `abs` (reflexiveCurry), β-reduction, η-expansion. The untyped lambda calculus
+  is Turing-complete, so **the reflexive fixed point supports universal
+  computation without ℕ-enumeration**.
+- **Fixed points of all transformations**: `omega(f) = abs(app ≫ f)` satisfies
+  the fixed-point equation `L ◁ omega(f) ≫ app = app ≫ f` purely in lambda
+  model terms.
 
 ### Kleene bridge: from categories to computation (no sorry)
 
@@ -155,12 +174,12 @@ is not, and why.
 
 | Directory | What it contains |
 |-----------|-----------------|
-| `Iteration/` | Adamek's initial algebra theorem, chain construction, tower morphism framework, tower initiality (9 files) |
+| `Iteration/` | Adamek's initial algebra theorem, chain construction, tower morphism framework, tower initiality (10 files) |
 | `Specification/` | Substrate-independent fixed-point existence and uniqueness |
 | `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization, self-indexed terminal property, coherent self-indexing, density propagation (6 files) |
 | `Accessibility/` | AR Theorem 2.23 |
 | `ChurchTuring/` | CompModel, characterization, Myhill theorem, Rogers isomorphism |
-| `Reflexive/` | Reflexive object, Y combinator, Kleene bridge and derivation (5 files) |
+| `Reflexive/` | Reflexive object, Y combinator, containerization, identity loop, lambda model, Kleene bridge (8 files) |
 | `Dimension/` | Truncation levels, graded filtration, dissolution, divergence, dimension-tower bridge (10 files) |
 | `Theories/` | Essentially algebraic theory definitions |
 | `Tensor/` | Boardman-Vogt conjectures (isolated) |
