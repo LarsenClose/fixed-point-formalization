@@ -42,9 +42,9 @@ operator that the CompModel's Kleene theorem uses.
 
 The `ComputabilityStructure` typeclass fields are interface assumptions,
 analogous to how MonoidalClosed assumes internal hom exists. The derivation
-theorems have sorry where Aristotle or manual proof should fill them.
+theorems are fully proved via the CompModel infrastructure.
 
-STATUS: Tier 2 (sorry in kleene derivation proof, to be filled).
+STATUS: Tier 1 (0 sorry). All derivation proofs complete.
 -/
 
 import FixedPoint.Reflexive.FixedPointCombinator
@@ -159,7 +159,7 @@ structure KleeneDerivation (r : ReflexiveObject A) where
     recursion theorem is already proved for all CompModels in
     RogersIsomorphism.lean as `hasSelfReference_of_computable`.
 
-    The sorry here is wiring that existing theorem through the
+    The proof wires that existing theorem through the
     specific CompModel constructed from the reflexive object. -/
 noncomputable def kleeneDerivation (r : ReflexiveObject A)
     [cs : ComputabilityStructure r] : KleeneDerivation r where

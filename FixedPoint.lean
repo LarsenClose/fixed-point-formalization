@@ -23,6 +23,9 @@ import FixedPoint.Iteration.TowerMorphism
 -- Tower morphism instances: FixedPointSpec instantiation
 import FixedPoint.Iteration.TowerMorphismInstances
 
+-- Tower morphism distinct: two-spec collapse = initiality iso
+import FixedPoint.Iteration.TowerMorphismDistinct
+
 -- Theory definitions
 import FixedPoint.Theories.EssentiallyAlgebraic
 
@@ -93,3 +96,9 @@ import FixedPoint.Uniqueness.CoherentSelfIndexing
 
 -- Density propagation (infrastructure for terminal conjecture)
 import FixedPoint.Uniqueness.DensityPropagation
+
+-- Dimension-tower chain bridge
+import FixedPoint.Dimension.DimensionTowerChain
+
+-- Tower initiality: Adamek chain is initial among all M-generated chains
+import FixedPoint.Iteration.TowerInitiality

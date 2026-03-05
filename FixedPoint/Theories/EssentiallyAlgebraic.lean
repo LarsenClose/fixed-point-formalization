@@ -12,7 +12,7 @@
   (Boardman-Vogt tensor extension) and the instantiation of
   SubstrateIndependent.lean with EAT model categories.
 
-  STATUS: Tier 2 — structures compile, key properties stated with sorry.
+  STATUS: Tier 1 — structures and definitions compile, no sorry.
 -/
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic

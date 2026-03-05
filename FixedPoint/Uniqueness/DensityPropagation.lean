@@ -3,7 +3,7 @@ Copyright (c) 2026 Larsen Close. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Larsen Close
 
-Density Propagation.
+Density Propagation (Adamek-Rosicky Theorem 1.46).
 
 Infrastructure lemma for the terminal characterization conjecture:
 if two ω-cocontinuous endofunctors on a locally finitely presentable (LFP)
@@ -28,28 +28,22 @@ The naturality of this composite in X gives F ≅ G.
 
 ## What is proved here
 
-The key Mathlib ingredient -- that the composite colimit manipulations above
-yield a well-defined natural isomorphism -- would require assembling
-`IsColimit.map`, `isColimitOfPreserves`, and naturality of the dense
-colimit cocone. This assembly is nontrivial and not packaged in Mathlib.
+We provide a full proof of Adamek-Rosicky Theorem 1.46 by assembling
+Mathlib's density infrastructure (`IsDense`, `isColimitOfPreserves`,
+`IsColimit.coconePointsIsoOfNatIso`) with a manual naturality argument.
 
-We provide:
 1. `PresentableAgreement F G`: structure packaging natural agreement on
    finitely presentable objects (the hypothesis).
-2. `densityPropagation`: the main theorem, stated with the proof
-   delegated through a clearly documented gap. If Mathlib adds a result
-   like "agreement on dense generators + filtered colimit preservation
-   implies NatIso," the sorry can be eliminated.
+2. `densityPropagation`: the main theorem (0 sorry).
 3. `densityPropagation_ihom`: specialization to the terminal conjecture.
 
-STATUS: Tier 2 -- 1 sorry (the density propagation core).
-The sorry is mathematically justified; it is a standard result in
-accessible category theory (see Adamek-Rosicky, Theorem 1.46).
+STATUS: Tier 1 -- fully proved, 0 sorry.
 -/
 
 import FixedPoint.Specification.SubstrateIndependent
 import Mathlib.CategoryTheory.Presentable.Dense
 import Mathlib.CategoryTheory.Presentable.Finite
+import Mathlib.CategoryTheory.Limits.Preserves.Filtered
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor
 open MonoidalCategory
@@ -81,37 +75,96 @@ section DensityPropagation
 
 variable [MonoidalCategory C] [SubstrateCategory C]
 
-/-- **Density propagation theorem.**
+/-- Abbreviation for the inclusion of the finitely presentable full subcategory. -/
+private abbrev ιFP := (ObjectProperty.isFinitelyPresentable.{0} C).ι
+
+/-- Given agreement on presentable objects, build a natural isomorphism between the
+    density diagrams composed with F and G. For each `j : CostructuredArrow ι X`,
+    `j.left` is a finitely presentable object, and we use the agreement at that object. -/
+private noncomputable def densityDiagramIso
+    {F G : C ⥤ C} (agree : PresentableAgreement F G) (X : C) :
+    (CostructuredArrow.proj ιFP X ⋙ ιFP) ⋙ F ≅
+    (CostructuredArrow.proj ιFP X ⋙ ιFP) ⋙ G :=
+  NatIso.ofComponents
+    (fun j => by
+      have : ObjectProperty.isFinitelyPresentable.{0} C (ιFP.obj j.left) :=
+        j.left.property
+      unfold ObjectProperty.isFinitelyPresentable at this
+      exact agree.isoAt (ιFP.obj j.left) this)
+    (fun {j₁ j₂} f => by
+      dsimp
+      have h1 : ObjectProperty.isFinitelyPresentable.{0} C (ιFP.obj j₁.left) :=
+        j₁.left.property
+      have h2 : ObjectProperty.isFinitelyPresentable.{0} C (ιFP.obj j₂.left) :=
+        j₂.left.property
+      unfold ObjectProperty.isFinitelyPresentable at h1 h2
+      exact agree.naturality _ _ h1 h2 _)
+
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 1600000 in
+/-- **Density propagation theorem** (Adamek-Rosicky Theorem 1.46).
 
     If F and G are endofunctors on a locally finitely presentable category,
-    both preserving filtered colimits, and they agree naturally on all finitely
-    presentable objects, then F ≅ G as functors.
+    both preserving filtered colimits (of shape up to `Type (max u v)`),
+    and they agree naturally on all finitely presentable objects, then F ≅ G
+    as functors.
 
-    **Proof sketch** (standard, see Adamek-Rosicky Theorem 1.46):
-    Every object X is the filtered colimit of the canonical diagram of
-    finitely presentable objects mapping into X (density). Since F and G
-    preserve this colimit, F(X) and G(X) are both colimits of the same
-    shape. The natural agreement on presentable objects induces a cocone
-    morphism, yielding F(X) ≅ G(X). Naturality in X follows from
-    universality of colimits.
+    The proof uses three Mathlib ingredients:
+    1. **Density**: Every object X is a filtered colimit of finitely presentable
+       objects via `IsDense` (Mathlib.CategoryTheory.Presentable.Dense).
+    2. **Preservation**: `isColimitOfPreserves` transports the colimit through F, G.
+    3. **Comparison**: `IsColimit.coconePointsIsoOfNatIso` builds the component iso.
+    Naturality in X follows by checking on coprojections of the density colimit.
 
-    **Gap**: Assembling `IsColimit.map`, `isColimitOfPreserves`, and the
-    naturality of the dense colimit cocone into a single NatIso requires
-    infrastructure not currently packaged in Mathlib. The sorry here is
-    mathematically justified and isolates the precise Mathlib gap. -/
+    **Universe note**: The hypothesis `PreservesFilteredColimitsOfSize.{v, max u v}`
+    is needed because the index category `CostructuredArrow ι X` lives in
+    `Type (max u v)`. For categories where `u ≤ v`, the standard
+    `PreservesFilteredColimits` suffices. -/
 noncomputable def densityPropagation
     (F G : C ⥤ C)
-    [PreservesFilteredColimits F] [PreservesFilteredColimits G]
+    [PreservesFilteredColimitsOfSize.{v, max u v} F]
+    [PreservesFilteredColimitsOfSize.{v, max u v} G]
     (agree : PresentableAgreement F G) :
     F ≅ G := by
-  -- The finitely presentable objects form a dense subcategory in any LFP category.
-  -- Mathlib provides: (ObjectProperty.isFinitelyPresentable C).ι.IsDense
-  -- Every X is a filtered colimit of presentable objects.
-  -- F and G both preserve this colimit.
-  -- The agreement on presentable objects induces an isomorphism on each colimit.
-  -- This is Adamek-Rosicky Theorem 1.46; the formal assembly from Mathlib
-  -- pieces requires IsColimit.map + isColimitOfPreserves + naturality bookkeeping.
-  sorry
+  -- Build the NatIso from component isomorphisms + naturality.
+  -- Component iso at X: use density colimit + preservation + comparison.
+  refine NatIso.ofComponents
+    (fun X =>
+      IsColimit.coconePointsIsoOfNatIso
+        (isColimitOfPreserves F (ιFP.denseAt X))
+        (isColimitOfPreserves G (ιFP.denseAt X))
+        (densityDiagramIso agree X))
+    (fun {X Y} f => ?_)
+  -- Naturality: F.map f ≫ iso_Y.hom = iso_X.hom ≫ G.map f.
+  -- Strategy: check equality on coprojections of the F-colimit at X,
+  -- then reduce both sides to agree.isoAt ≫ G.map (j.hom ≫ f).
+  apply (isColimitOfPreserves F (ιFP.denseAt X)).hom_ext; intro j
+  simp only [← Category.assoc]
+  rw [IsColimit.comp_coconePointsIsoOfNatIso_hom _ _ _ j]
+  -- RHS: ((densityDiagramIso agree X).hom.app j ≫ (G.mapCocone _).ι.app j) ≫ G.map f
+  -- Simplify the density cocone coprojections.
+  have eqF : (F.mapCocone ((LeftExtension.mk (𝟭 C) ιFP.rightUnitor.inv).coconeAt X)).ι.app j =
+    F.map j.hom := by simp [Functor.mapCocone_ι_app, LeftExtension.coconeAt]
+  have eqG : (G.mapCocone ((LeftExtension.mk (𝟭 C) ιFP.rightUnitor.inv).coconeAt X)).ι.app j =
+    G.map j.hom := by simp [Functor.mapCocone_ι_app, LeftExtension.coconeAt]
+  rw [eqF, eqG, Category.assoc ((densityDiagramIso agree X).hom.app j), ← G.map_comp]
+  -- RHS: (densityDiagramIso agree X).hom.app j ≫ G.map (j.hom ≫ f)
+  -- LHS: (F.map j.hom ≫ F.map f) ≫ iso_Y.hom
+  conv_lhs => rw [← F.map_comp]
+  -- LHS: F.map (j.hom ≫ f) ≫ iso_Y.hom
+  -- Rewrite as coprojection at Y for k = CostructuredArrow.mk (j.hom ≫ f).
+  let k : CostructuredArrow ιFP Y := CostructuredArrow.mk (j.hom ≫ f)
+  have eqFK : F.map (j.hom ≫ f) =
+    (F.mapCocone ((LeftExtension.mk (𝟭 C) ιFP.rightUnitor.inv).coconeAt Y)).ι.app k := by
+    symm; simp [Functor.mapCocone_ι_app, LeftExtension.coconeAt, k]
+  rw [eqFK, IsColimit.comp_coconePointsIsoOfNatIso_hom]
+  -- LHS: (densityDiagramIso agree Y).hom.app k ≫ (G.mapCocone _).ι.app k
+  have eqGK : (G.mapCocone ((LeftExtension.mk (𝟭 C) ιFP.rightUnitor.inv).coconeAt Y)).ι.app k =
+    G.map (j.hom ≫ f) := by simp [Functor.mapCocone_ι_app, LeftExtension.coconeAt, k]
+  rw [eqGK]
+  -- Both sides: agree.isoAt (ιFP.obj j.left) _ ≫ G.map (j.hom ≫ f)
+  -- Equal because k.left = j.left (definitionally).
+  dsimp [densityDiagramIso, k]
 
 end DensityPropagation
 
@@ -131,8 +184,9 @@ variable [MonoidalCategory C] [SubstrateCategory C] [HasInitial C]
     once we show F and ihom(A) agree on generators, we get F ≅ ihom(A) globally. -/
 noncomputable def densityPropagation_ihom
     (A : C) [Closed A]
-    (F : C ⥤ C) [PreservesFilteredColimits F]
-    [PreservesFilteredColimits (ihom A)]
+    (F : C ⥤ C)
+    [PreservesFilteredColimitsOfSize.{v, max u v} F]
+    [PreservesFilteredColimitsOfSize.{v, max u v} (ihom A)]
     (agree : PresentableAgreement F (ihom A)) :
     F ≅ ihom A :=
   densityPropagation F (ihom A) agree
@@ -161,9 +215,10 @@ noncomputable def densityPropagation_ihom
     propagation is designed to bridge. -/
 theorem density_approach_reduces_conjecture
     (A : C) [Closed A]
-    (F : C ⥤ C) [PreservesFilteredColimits F]
-    [PreservesFilteredColimits (ihom A)]
-    (agree : PresentableAgreement F (ihom A)) :
+    (F : C ⥤ C)
+    [PreservesFilteredColimitsOfSize.{v, max u v} F]
+    [PreservesFilteredColimitsOfSize.{v, max u v} (ihom A)]
+    (agree : PresentableAgreement.{v, u, 0} F (ihom A)) :
     Nonempty (F ≅ ihom A) :=
   ⟨densityPropagation_ihom A F agree⟩
 

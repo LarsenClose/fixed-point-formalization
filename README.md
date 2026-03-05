@@ -7,7 +7,7 @@ Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory and categorical
 dimension.
 
-**35 files, 7057 lines of Lean. 0 custom axioms.**
+**38 files. 0 sorry. 0 custom axioms.**
 
 ## Main results
 
@@ -90,6 +90,16 @@ This condition discriminates: the powerset functor and identity functor fail it,
 while `ihom(D)` with the reflexive domain equation `D ≅ [D, D]` satisfies it.
 `selfIndexingEquiv` constructs this from a reflexive object with A = carrier.
 
+**Coherent self-indexing** (`CoherentSelfIndexedFixedPoint`) enriches self-indexing
+with an evaluation map `eval : D ⊗ D ⟶ D` and naming-eval compatibility: evaluating
+a named function recovers it. The bridge `coherentFromReflexive` constructs this from
+a reflexive object with A = carrier, with both `eval_compat` and `eval_id` fully proved.
+
+**Density propagation** (`densityPropagation`) proves Adamek-Rosicky Theorem 1.46:
+endofunctors preserving filtered colimits that agree on finitely presentable objects
+are naturally isomorphic. Fully proved by assembling Mathlib's `IsDense`,
+`isColimitOfPreserves`, and `IsColimit.coconePointsIsoOfNatIso`.
+
 ### Tower morphism framework (no sorry)
 
 Abstract ω-chain morphism framework and collapse-at-colimit theorem. Given two
@@ -101,7 +111,22 @@ transformation collapses to an endomorphism of that fixed point.
 Key results: `collapseMap` (induced map on colimits), `collapseMap_unique`
 (uniqueness from universal property), `collapseIso` (levelwise iso gives
 colimit iso), `sharedCollapseEndo` (endomorphism when chains share a colimit).
-This proves once and instantiates for each specific tower correspondence.
+
+**Tower initiality** (`adamekChain_initial`): the Adamek chain from the initial
+object is initial among all M-generated chains. For any process that generates
+structural levels by iterating M from any starting point, there is a unique
+chain morphism from the Adamek chain. Initiality is not a claim that no other
+dimensional process exists — it is a claim that every other dimensional process
+receives a unique map from this one. This is the load-bearing uniqueness
+statement for the paper: all claims reference only chain objects and the colimit,
+so tower initiality suffices. Global functor uniqueness (F ≅ ihom(A) on all of C
+via the BV tensor) is a stronger statement that the paper does not require.
+
+Instantiated end-to-end: given two `FixedPointSpec` instances for the same
+closed object, the tower collapse recovers the canonical initial algebra
+isomorphism (`twoSpecCollapse_is_unique`). The Adamek chain is also shown to
+be a `GeneratedChain` for any endofunctor, with each level carrying its
+canonical dimension from the graded filtration (`DimensionTowerChain`).
 
 ### Computability theory (no sorry, no custom axioms)
 
@@ -130,13 +155,13 @@ is not, and why.
 
 | Directory | What it contains |
 |-----------|-----------------|
-| `Iteration/` | Adamek's initial algebra theorem, chain construction, tower morphism framework (7 files) |
+| `Iteration/` | Adamek's initial algebra theorem, chain construction, tower morphism framework, tower initiality (9 files) |
 | `Specification/` | Substrate-independent fixed-point existence and uniqueness |
-| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization, self-indexed terminal property (4 files) |
+| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization, self-indexed terminal property, coherent self-indexing, density propagation (6 files) |
 | `Accessibility/` | AR Theorem 2.23 |
 | `ChurchTuring/` | CompModel, characterization, Myhill theorem, Rogers isomorphism |
 | `Reflexive/` | Reflexive object, Y combinator, Kleene bridge and derivation (5 files) |
-| `Dimension/` | Truncation levels, graded filtration, dissolution, divergence (9 files) |
+| `Dimension/` | Truncation levels, graded filtration, dissolution, divergence, dimension-tower bridge (10 files) |
 | `Theories/` | Essentially algebraic theory definitions |
 | `Tensor/` | Boardman-Vogt conjectures (isolated) |
 

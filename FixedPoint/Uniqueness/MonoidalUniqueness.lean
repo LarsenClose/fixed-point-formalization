@@ -10,12 +10,14 @@
     from RightAdjointUnique.lean, which wraps Mathlib's
     `Adjunction.rightAdjointUniq`.
 
-  Step (b): M = ihom of the BV monoidal structure — SORRY (Tier 3).
+  Step (b): M = ihom of the BV monoidal structure — PROVED (given adjunction hypothesis).
     If the Boardman-Vogt tensor product extends to EATs (Claim A from
     BoardmanVogt.lean), then the EAT model category carries a monoidal
     closed structure, and any endofunctor M that arises as the right
     adjoint of this tensor is isomorphic to the internal hom ihom.
-    This step carries `sorry` because it depends on Claim A (the BV
+    The theorem is fully proved by `rightAdjointForcedToIHom`; the
+    adjunction is taken as an explicit hypothesis. The gap is that
+    constructing this adjunction externally requires Claim A (the BV
     tensor extension), which is an open Tier 3 conjecture.
 
   Step (c): Therefore M is unique — PROVED.
@@ -23,8 +25,9 @@
     isomorphism by the monoidal structure. Given h_adj as a hypothesis,
     this is immediate from Step (a).
 
-  STATUS: Tier 3 — Step (b) contains intentional sorry (depends on Claim A).
-  Steps (a) and (c) are fully verified.
+  STATUS: All three steps are proved (0 sorry). The mathematical gap is
+  in the hypothesis of Step (b): the adjunction must be externally provided,
+  which requires Claim A (Tier 3, open conjecture).
 -/
 import FixedPoint.Uniqueness.RightAdjointUnique
 import FixedPoint.Specification.SubstrateIndependent
@@ -57,17 +60,18 @@ noncomputable def monoidal_structure_forces_ihom (A : C) [Closed A]
 
 end StepA
 
-/-! ## Step (b): M is the internal hom of the monoidal structure (SORRY — Tier 3)
+/-! ## Step (b): M is the internal hom of the monoidal structure (PROVED — given adjunction)
 
 This step asserts that for an endofunctor M on a substrate category,
 if M arises as the right adjoint of a monoidal tensor (such as the
 Boardman-Vogt tensor extended to EATs), then M is isomorphic to the
 internal hom of that monoidal structure.
 
-The `sorry` here is **intentional**: it depends on the BV tensor product
-extending from Lawvere theories to essentially algebraic theories
-(Claim A in `FixedPoint.Tensor.BoardmanVogt`). This is an open
-mathematical conjecture at Tier 3. -/
+The theorem is fully proved (0 sorry). The adjunction is taken as an
+explicit hypothesis. The mathematical gap is that **constructing** this
+adjunction requires the BV tensor product to extend from Lawvere theories
+to essentially algebraic theories (Claim A in
+`FixedPoint.Tensor.BoardmanVogt`), which is an open Tier 3 conjecture. -/
 
 section StepB
 
@@ -85,10 +89,10 @@ omit [FixedPoint.SubstrateCategory C] in
     packages this: assuming a monoidal closed structure exists (which
     requires Claim A), the endofunctor is forced.
 
-    The sorry marks the gap: we cannot yet construct the monoidal closed
-    structure on EAT model categories because the BV tensor extension
-    (Claim A) is unproved. Once Claim A is established, this conjecture
-    reduces to Step (a).
+    The hypothesis `h_adj` marks the gap: we cannot yet construct the
+    monoidal closed structure on EAT model categories because the BV
+    tensor extension (Claim A) is unproved. Once Claim A is established,
+    `h_adj` will be constructible and this theorem reduces to Step (a).
 
     **Tier 3**: Depends on `claimA_bvTensor_extends` from BoardmanVogt.lean. -/
 theorem endofunctor_forced_by_bv_structure
@@ -101,16 +105,17 @@ theorem endofunctor_forced_by_bv_structure
 
 end StepB
 
-/-! ## Step (c): M is unique given the monoidal structure (SORRY — depends on b)
+/-! ## Step (c): M is unique given the monoidal structure (PROVED)
 
 The final step: any two endofunctors that arise as right adjoints of the
 same tensor are isomorphic to each other. This follows from transitivity:
 both are isomorphic to `ihom A` by Step (a), hence to each other.
 
-The sorry here is **structural**: the mathematical argument is complete
-(and in fact proved by `endofunctorUnique` from RightAdjointUnique.lean),
-but the full pipeline — from BV tensor existence through monoidal closed
-structure to this uniqueness — carries the Tier 3 gap from Step (b).
+This step is fully proved (0 sorry) by `endofunctorUnique` from
+RightAdjointUnique.lean. The full pipeline — from BV tensor existence
+through monoidal closed structure to this uniqueness — carries the
+Tier 3 gap from Step (b) only in the hypothesis: the adjunction must
+be externally provided, which requires Claim A.
 
 We state the theorem in a form that makes the dependency explicit:
 given that the BV monoidal structure exists and M arises from it,
@@ -130,10 +135,12 @@ variable [FixedPoint.SubstrateCategory C]
     Combined with Step (b) (which asserts M arises from the BV structure),
     this gives full uniqueness of the fixed-point endofunctor.
 
-    **Tier 3**: The sorry marks the dependency on the BV tensor extension.
-    The categorical uniqueness itself is proved — see `endofunctorUnique`
-    in RightAdjointUnique.lean. The gap is establishing that the BV tensor
-    gives rise to the monoidal closed structure in the first place.
+    **Tier 3**: The hypothesis (adjunction) marks the dependency on the
+    BV tensor extension. The categorical uniqueness itself is fully proved
+    (0 sorry) — see `endofunctorUnique` in RightAdjointUnique.lean. The
+    gap is establishing that the BV tensor gives rise to the monoidal
+    closed structure in the first place, which would make the adjunction
+    constructible rather than hypothesized.
 
     Once Claim A (BV tensor extension) is proved:
     1. The EAT model category becomes monoidal closed.
@@ -147,8 +154,8 @@ noncomputable def bv_endofunctor_unique
     (adj₂ : tensorLeft A ⊣ M₂) :
     M₁ ≅ M₂ :=
   -- Proved: transitivity through ihom A via endofunctorUnique.
-  -- The sorry in the overall pipeline is in Step (b): establishing that
-  -- M₁, M₂ actually arise from the BV monoidal structure.
+  -- The gap in the overall pipeline is in Step (b)'s hypothesis: establishing
+  -- that M₁, M₂ actually arise from the BV monoidal structure.
   endofunctorUnique A adj₁ adj₂
 
 omit [FixedPoint.SubstrateCategory C] in
@@ -186,11 +193,12 @@ The uniqueness argument is factored as:
 | Step | Statement                          | Status       | Reference                     |
 |------|------------------------------------|--------------|-------------------------------|
 | (a)  | Right adjoints are unique          | **Proved**   | `rightAdjointForcedToIHom`    |
-| (b)  | M = ihom of BV monoidal structure  | **Sorry**    | Depends on Claim A (Tier 3)   |
+| (b)  | M = ihom of BV monoidal structure  | **Proved (given adj)** | Adj hypothesis requires Claim A (Tier 3) |
 | (c)  | Therefore M is unique              | **Proved**   | `bv_uniqueness_pipeline`      |
 
-The categorical core (Steps a and c) is fully verified against Mathlib.
-The gap is purely in Step (b): establishing that the Boardman-Vogt tensor
+All three steps are fully proved (0 sorry) against Mathlib.
+The gap is in the hypothesis of Step (b): the adjunction must be externally
+provided. Constructing it requires establishing that the Boardman-Vogt tensor
 product extends to essentially algebraic theories, giving EAT model
 categories a monoidal closed structure. This is Claim A from the paper
 series, stated as a formal conjecture in `FixedPoint.Tensor.BoardmanVogt`.

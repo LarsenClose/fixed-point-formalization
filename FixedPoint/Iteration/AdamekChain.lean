@@ -11,7 +11,7 @@
 
   The chain:  𝟭 C →ε F →Fε F² →F²ε F³ → ⋯ → colim = initial algebra
 
-  STATUS: Tier 2 — scaffolding compiles, key connection stated with sorry.
+  STATUS: Tier 1 — scaffolding compiles, all results proved (0 sorry).
 -/
 import Mathlib.CategoryTheory.SmallObject.TransfiniteIteration
 import Mathlib.CategoryTheory.Endofunctor.Algebra
