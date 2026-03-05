@@ -118,4 +118,42 @@ theorem no_spec_no_reflexive {A : C} [Closed A]
   intro ⟨r, _⟩
   exact h ⟨r.spec, trivial⟩
 
+/-! ### Categorical Lindstrom characterization -/
+
+/-- A closed object A in a substrate category is computationally universal
+    if the ihom(A) chain converges: there exists a FixedPointSpec yielding
+    the full computational structure (reflexive object, Y combinator,
+    dimension stability).
+
+    This makes "computationally universal" a model-theoretic property of
+    a category-with-structure, not a property of encodings. -/
+def ComputationallyUniversal (A : C) [Closed A] : Prop :=
+  ∃ _ : ConvergencePipeline A, True
+
+/-- **Categorical Lindstrom characterization.**
+
+    Computational universality (existence of the full pipeline: reflexive object,
+    Y combinator, dimension stability) is equivalent to convergence of the
+    ihom(A) chain (existence of an initial algebra with Lambek iso).
+
+    This is a Lindstrom-type result: it characterizes computational universality
+    as a closure/convergence property of a category-with-structure, not as a
+    property of any particular encoding or model. Combined with the classical
+    characterization theorem (`FixedPoint.ChurchTuring.characterization`), this
+    says: once the chain converges, the resulting computation is unique up to
+    equivalence. -/
+theorem categorical_lindstrom (A : C) [Closed A] :
+    ComputationallyUniversal A ↔ (∃ _ : FixedPointSpec A, True) :=
+  ⟨fun ⟨cp, _⟩ => ⟨cp.spec, trivial⟩,
+   fun ⟨fp, _⟩ => ⟨convergencePipeline fp, trivial⟩⟩
+
+/-- In a substrate category where tensorLeft A preserves finite presentability,
+    A is automatically computationally universal. The ihom(A) chain converges
+    by the LFP route (AR 2.23 + Adamek). -/
+theorem computationally_universal_of_tensor [SubstrateCategory C]
+    (A : C) [Closed A] [TensorLeftFinitelyPresentable A] :
+    ComputationallyUniversal A :=
+  let ⟨fp, _⟩ := fixedPoint_exists A
+  ⟨convergencePipeline fp, trivial⟩
+
 end FixedPoint.Dimension
