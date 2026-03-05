@@ -17,6 +17,9 @@ import FixedPoint.Iteration.ChainShift
 import FixedPoint.Iteration.AdamekTheorem
 import FixedPoint.Iteration.AdamekConnection
 
+-- Initial-algebra induction and recursion principles
+import FixedPoint.Iteration.InitialAlgebraInduction
+
 -- Tower morphism framework: ω-chain collapse theorem (Targets 17/18)
 import FixedPoint.Iteration.TowerMorphism
 
