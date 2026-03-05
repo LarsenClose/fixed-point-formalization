@@ -7,7 +7,7 @@ Lean 4 formalization of fixed-point constructions in monoidal closed, locally
 presentable categories, with connections to computability theory and categorical
 dimension.
 
-**30 files, 6157 lines of Lean. 0 sorry. 0 custom axioms.**
+**35 files, 7057 lines of Lean. 0 custom axioms.**
 
 ## Main results
 
@@ -72,7 +72,7 @@ The Adamek chain is an N-indexed filtration by dimension:
 - **DimensionIncrement typeclass**: every endofunctor satisfies it (the
   dimension-increment property is intrinsic to the chain construction)
 
-### Terminal characterization (no sorry)
+### Terminal characterization and self-indexing (no sorry)
 
 `HasAdamekFixedPoint F` packages: carrier, Lambek iso, initiality. The
 original conjecture — that any endofunctor with an Adamek fixed point must
@@ -83,6 +83,25 @@ The precise result: `terminal_characterization_from_adjunction` proves that
 if `tensorLeft A ⊣ F`, then `F ≅ ihom A`. The additional structure needed
 is exactly the tensor-hom adjunction — uniqueness of right adjoints does
 the rest.
+
+The **self-indexed terminal property** refines this: `SelfIndexedFixedPoint F`
+requires `(𝟙_ C ⟶ D) ≃ (D ⟶ D)` — global sections biject with endomorphisms.
+This condition discriminates: the powerset functor and identity functor fail it,
+while `ihom(D)` with the reflexive domain equation `D ≅ [D, D]` satisfies it.
+`selfIndexingEquiv` constructs this from a reflexive object with A = carrier.
+
+### Tower morphism framework (no sorry)
+
+Abstract ω-chain morphism framework and collapse-at-colimit theorem. Given two
+endofunctor-generated chains (`GeneratedChain M`) related by an M-compatible
+natural transformation, the induced morphism at the colimit is determined by
+the colimit's universal property. When both chains share a fixed point, the
+transformation collapses to an endomorphism of that fixed point.
+
+Key results: `collapseMap` (induced map on colimits), `collapseMap_unique`
+(uniqueness from universal property), `collapseIso` (levelwise iso gives
+colimit iso), `sharedCollapseEndo` (endomorphism when chains share a colimit).
+This proves once and instantiates for each specific tower correspondence.
 
 ### Computability theory (no sorry, no custom axioms)
 
@@ -111,9 +130,9 @@ is not, and why.
 
 | Directory | What it contains |
 |-----------|-----------------|
-| `Iteration/` | Adamek's initial algebra theorem, chain construction (6 files) |
+| `Iteration/` | Adamek's initial algebra theorem, chain construction, tower morphism framework (7 files) |
 | `Specification/` | Substrate-independent fixed-point existence and uniqueness |
-| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization (3 files) |
+| `Uniqueness/` | Right adjoint uniqueness, monoidal uniqueness, terminal characterization, self-indexed terminal property (4 files) |
 | `Accessibility/` | AR Theorem 2.23 |
 | `ChurchTuring/` | CompModel, characterization, Myhill theorem, Rogers isomorphism |
 | `Reflexive/` | Reflexive object, Y combinator, Kleene bridge and derivation (5 files) |

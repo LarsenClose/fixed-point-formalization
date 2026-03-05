@@ -610,10 +610,18 @@ in Mathlib.
 | `Dimension/DimensionIncrement.lean` | 99 | 0 | 0 | DimensionIncrement typeclass (universal) |
 | `Uniqueness/TerminalCharacterization.lean` | 158 | 0 | 0 | Terminal characterization (proved form + negative findings) |
 | `Uniqueness/SelfIndexedTerminalProperty.lean` | 206 | 0 | 0 | Self-indexed terminal property (revised conjecture) |
+| `Uniqueness/CoherentSelfIndexing.lean` | 157 | 2 | 0 | Coherent self-indexing structure (eval_compat bridge) |
+| `Uniqueness/DensityPropagation.lean` | 190 | 1 | 0 | Density propagation (AR Thm 1.46, Mathlib gap) |
+| `Iteration/TowerMorphismInstances.lean` | 105 | 0 | 0 | Tower morphism instantiation for FixedPointSpec |
 
-**Total: 6605 lines of Lean across 32 files.**
+**Total: 7057 lines of Lean across 35 files.**
 
-- **0 sorry**. All theorems are fully proved.
+- **3 sorry** in Tier 2 bridge theorems:
+  - `densityPropagation`: assembly of IsDense + PreservesFilteredColimits into NatIso
+    (Adamek-Rosicky Thm 1.46; Mathlib has all pieces individually but not the synthesis)
+  - `coherentFromReflexive.eval_compat`: monoidal closed whisker normalization
+    (curry/uncurry round-trip through 5 definition layers)
+  - `coherentFromReflexive.eval_id`: inherits from eval_compat
 - **0 custom axioms**. The only axioms used are Lean's standard three:
   `propext`, `Classical.choice`, `Quot.sound`.
 

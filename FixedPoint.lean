@@ -20,6 +20,9 @@ import FixedPoint.Iteration.AdamekConnection
 -- Tower morphism framework: ω-chain collapse theorem (Targets 17/18)
 import FixedPoint.Iteration.TowerMorphism
 
+-- Tower morphism instances: FixedPointSpec instantiation
+import FixedPoint.Iteration.TowerMorphismInstances
+
 -- Theory definitions
 import FixedPoint.Theories.EssentiallyAlgebraic
 
@@ -84,3 +87,9 @@ import FixedPoint.Uniqueness.TerminalCharacterization
 
 -- Self-indexed terminal property (revised conjecture)
 import FixedPoint.Uniqueness.SelfIndexedTerminalProperty
+
+-- Coherent self-indexing structure
+import FixedPoint.Uniqueness.CoherentSelfIndexing
+
+-- Density propagation (infrastructure for terminal conjecture)
+import FixedPoint.Uniqueness.DensityPropagation
